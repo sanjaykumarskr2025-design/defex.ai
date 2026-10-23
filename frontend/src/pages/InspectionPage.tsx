@@ -1,6 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Camera, Upload, ChevronRight, CheckCircle2, AlertTriangle, RefreshCw, Eye, Sparkles } from 'lucide-react';
+import {
+  Camera,
+  Upload,
+  ChevronRight,
+  CheckCircle2,
+  RefreshCw,
+  Sparkles,
+  SwitchCamera,
+  AlertCircle,
+  VideoOff,
+} from 'lucide-react';
 import { PartGraphic } from '../components/PartGraphic';
 import { useAppState } from '../context/AppContext';
 
@@ -17,10 +27,127 @@ export const InspectionPage: React.FC = () => {
   const [partType, setPartType] = useState('Gear Housing');
   const [machine, setMachine] = useState('CNC Machine 01');
   const [profile, setProfile] = useState('Default Profile');
+
   const [isScanning, setIsScanning] = useState(false);
   const [scanProgress, setScanProgress] = useState(0);
 
+  // Real Camera States
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [isCameraActive, setIsCameraActive] = useState(false);
+  const [cameraError, setCameraError] = useState<string | null>(null);
+  const [facingMode, setFacingMode] = useState<'environment' | 'user'>('environment');
+  const [capturedImage, setCapturedImage] = useState<string | null>(null);
+
+  // Start real camera stream
+  const startCamera = async (facing: 'environment' | 'user' = facingMode) => {
+    setCameraError(null);
+    try {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((track) => track.stop());
+      }
+
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error('Camera API is not supported in this browser environment');
+      }
+
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: facing,
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+        },
+        audio: false,
+      });
+
+      streamRef.current = stream;
+
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        await videoRef.current.play();
+      }
+
+      setIsCameraActive(true);
+    } catch (err: any) {
+      console.warn('Real camera error:', err);
+      setIsCameraActive(false);
+      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+        setCameraError('Camera permission denied. Please allow camera permissions in your browser.');
+      } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+        setCameraError('No real camera detected on this device. You can upload an image or use simulation.');
+      } else {
+        setCameraError(err.message || 'Unable to open camera feed.');
+      }
+    }
+  };
+
+  // Stop real camera stream
+  const stopCamera = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
+    }
+    setIsCameraActive(false);
+  };
+
+  // Switch between front & rear cameras
+  const toggleFacingMode = () => {
+    const nextMode = facingMode === 'environment' ? 'user' : 'environment';
+    setFacingMode(nextMode);
+    startCamera(nextMode);
+  };
+
+  // Automatically start camera on Step 1 when in 'camera' mode
+  useEffect(() => {
+    if (step === 1 && mode === 'camera') {
+      startCamera();
+    } else {
+      stopCamera();
+    }
+
+    return () => {
+      stopCamera();
+    };
+  }, [step, mode]);
+
+  // Capture frame from real camera or fallback
+  const captureCurrentFrame = (): string | null => {
+    if (isCameraActive && videoRef.current) {
+      const video = videoRef.current;
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth || 640;
+      canvas.height = video.videoHeight || 480;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        return canvas.toDataURL('image/jpeg', 0.92);
+      }
+    }
+    return null;
+  };
+
+  // Handle file upload
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setCapturedImage(event.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const startAnalysis = () => {
+    // Capture real photo if camera is active
+    if (mode === 'camera' && isCameraActive) {
+      const photo = captureCurrentFrame();
+      if (photo) setCapturedImage(photo);
+    }
+
+    stopCamera();
     setStep(2);
     setIsScanning(true);
     setScanProgress(0);
@@ -35,7 +162,7 @@ export const InspectionPage: React.FC = () => {
         }
         return prev + 25;
       });
-    }, 400);
+    }, 450);
   };
 
   const handleSaveRecord = () => {
@@ -103,52 +230,156 @@ export const InspectionPage: React.FC = () => {
       {/* Main Viewport Content based on Step */}
       {step === 1 && (
         <div className="space-y-4">
-          {/* Camera Viewport with Live Reticle */}
+          {/* Camera Viewport with Live Feed & Reticle */}
           <div className="relative rounded-2xl overflow-hidden shadow-lg border border-slate-200 aspect-[4/3] bg-slate-950 flex flex-col justify-between p-3">
             {/* Top Bar inside Viewport */}
             <div className="flex items-center justify-between z-10">
-              <div className="bg-slate-900/80 backdrop-blur-md text-cyan-400 text-[11px] font-bold px-2.5 py-1 rounded-full border border-cyan-500/30 flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
-                <span>Live Camera</span>
+              <div className="bg-slate-900/85 backdrop-blur-md text-cyan-400 text-[11px] font-bold px-2.5 py-1 rounded-full border border-cyan-500/30 flex items-center gap-1.5 shadow-md">
+                <span
+                  className={`w-2 h-2 rounded-full ${
+                    isCameraActive ? 'bg-emerald-400 animate-ping' : 'bg-amber-400'
+                  }`}
+                />
+                <span>{isCameraActive ? 'Live Real Camera' : 'Camera Feed'}</span>
               </div>
 
-              <button className="p-1.5 rounded-full bg-slate-900/80 backdrop-blur-md text-slate-300 hover:text-white border border-slate-700/50">
-                <RefreshCw className="w-4 h-4" />
-              </button>
+              <div className="flex items-center gap-1.5">
+                {isCameraActive && (
+                  <button
+                    onClick={toggleFacingMode}
+                    className="p-1.5 rounded-full bg-slate-900/80 backdrop-blur-md text-slate-300 hover:text-white border border-slate-700/50"
+                    title="Flip camera (Front/Rear)"
+                  >
+                    <SwitchCamera className="w-4 h-4" />
+                  </button>
+                )}
+
+                <button
+                  onClick={() => startCamera()}
+                  className="p-1.5 rounded-full bg-slate-900/80 backdrop-blur-md text-slate-300 hover:text-white border border-slate-700/50"
+                  title="Restart Camera"
+                >
+                  <RefreshCw className="w-4 h-4" />
+                </button>
+              </div>
             </div>
 
-            {/* Industrial Part Visual with Reticle Target */}
-            <div className="absolute inset-0 flex items-center justify-center p-6">
-              <PartGraphic className="w-full h-full" showReticle={true} />
+            {/* Video or Graphic inside Viewport */}
+            <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
+              {mode === 'camera' ? (
+                isCameraActive ? (
+                  <video
+                    ref={videoRef}
+                    autoPlay
+                    playsInline
+                    muted
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full relative flex items-center justify-center p-6">
+                    <PartGraphic className="w-full h-full" showReticle={true} />
+                    {cameraError && (
+                      <div className="absolute bottom-10 left-4 right-4 bg-slate-900/90 border border-slate-700 p-2.5 rounded-xl text-center backdrop-blur-md z-20">
+                        <p className="text-[11px] text-amber-300 font-medium">{cameraError}</p>
+                        <button
+                          onClick={() => startCamera()}
+                          className="mt-1.5 text-xs font-bold text-cyan-400 hover:underline"
+                        >
+                          Click here to allow / retry camera
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )
+              ) : (
+                /* Upload Mode Display */
+                <div className="w-full h-full relative flex items-center justify-center p-6">
+                  {capturedImage ? (
+                    <img
+                      src={capturedImage}
+                      alt="Uploaded part"
+                      className="w-full h-full object-cover rounded-xl border border-slate-700"
+                    />
+                  ) : (
+                    <div className="text-center p-6 space-y-2">
+                      <Upload className="w-10 h-10 text-slate-500 mx-auto" />
+                      <p className="text-xs font-bold text-slate-300">No Image Uploaded Yet</p>
+                      <button
+                        onClick={() => fileInputRef.current?.click()}
+                        className="text-xs font-bold text-cyan-400 hover:underline"
+                      >
+                        Choose file to upload
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
-            {/* Bottom info inside viewport */}
+            {/* Viewfinder Reticle Overlay for Real Camera */}
+            {isCameraActive && (
+              <div className="absolute inset-4 pointer-events-none z-10">
+                <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-cyan-400 rounded-tl-sm shadow-[0_0_8px_#22d3ee]" />
+                <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-cyan-400 rounded-tr-sm shadow-[0_0_8px_#22d3ee]" />
+                <div className="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-cyan-400 rounded-bl-sm shadow-[0_0_8px_#22d3ee]" />
+                <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-cyan-400 rounded-br-sm shadow-[0_0_8px_#22d3ee]" />
+
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-14 h-14 border border-cyan-400/30 rounded-full animate-pulse" />
+                  <div className="w-2.5 h-2.5 bg-cyan-400/80 rounded-full" />
+                </div>
+              </div>
+            )}
+
+            {/* Bottom info banner inside viewport */}
             <div className="z-10 text-center">
-              <span className="text-[10px] font-medium text-slate-400 bg-slate-900/80 px-2 py-0.5 rounded-md backdrop-blur-xs">
-                Align part inside blue brackets
+              <span className="text-[10px] font-medium text-slate-300 bg-slate-900/85 px-3 py-1 rounded-full backdrop-blur-md border border-slate-800">
+                {isCameraActive
+                  ? 'Real-time lens active • Center component in target'
+                  : 'Align part inside target brackets'}
               </span>
             </div>
           </div>
 
+          {/* Hidden File Input for Upload */}
+          <input
+            type="file"
+            ref={fileInputRef}
+            accept="image/*"
+            onChange={handleFileUpload}
+            className="hidden"
+          />
+
           {/* Mode Switcher Buttons */}
           <div className="grid grid-cols-2 gap-2 bg-slate-100 p-1 rounded-xl font-bold text-xs">
             <button
-              onClick={() => setMode('camera')}
+              onClick={() => {
+                setMode('camera');
+                startCamera();
+              }}
               className={`flex items-center justify-center gap-2 py-2 rounded-lg transition-all ${
-                mode === 'camera' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
+                mode === 'camera'
+                  ? 'bg-blue-600 text-white shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               <Camera className="w-4 h-4" />
-              <span>Camera</span>
+              <span>Real Camera</span>
             </button>
             <button
-              onClick={() => setMode('upload')}
+              onClick={() => {
+                setMode('upload');
+                stopCamera();
+                fileInputRef.current?.click();
+              }}
               className={`flex items-center justify-center gap-2 py-2 rounded-lg transition-all ${
-                mode === 'upload' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
+                mode === 'upload'
+                  ? 'bg-blue-600 text-white shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               <Upload className="w-4 h-4" />
-              <span>Upload</span>
+              <span>Upload Photo</span>
             </button>
           </div>
 
@@ -215,7 +446,7 @@ export const InspectionPage: React.FC = () => {
       {step === 2 && (
         <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-xs text-center space-y-6 py-12">
           <div className="relative w-48 h-48 mx-auto rounded-2xl overflow-hidden bg-slate-900 border border-slate-800 shadow-xl">
-            <PartGraphic className="w-full h-full" isScanning={true} />
+            <PartGraphic className="w-full h-full" isScanning={true} imageSrc={capturedImage} />
           </div>
 
           <div className="space-y-2">
@@ -243,7 +474,7 @@ export const InspectionPage: React.FC = () => {
         <div className="space-y-4 animate-in fade-in duration-200">
           {/* Inspected Graphic with AI Defect Overlays */}
           <div className="relative rounded-2xl overflow-hidden shadow-lg border border-slate-200 aspect-[4/3] bg-slate-950 flex items-center justify-center p-4">
-            <PartGraphic className="w-full h-full" showBoundingBoxes={true} />
+            <PartGraphic className="w-full h-full" showBoundingBoxes={true} imageSrc={capturedImage} />
           </div>
 
           {/* Overall Result Banner */}
@@ -292,10 +523,13 @@ export const InspectionPage: React.FC = () => {
           {/* Actions Button Group */}
           <div className="space-y-2">
             <button
-              onClick={() => navigate('/part-details')}
+              onClick={() => {
+                setCapturedImage(null);
+                setStep(1);
+              }}
               className="w-full bg-white hover:bg-slate-50 text-blue-600 border border-blue-200 font-bold py-3 px-4 rounded-xl shadow-xs text-xs md:text-sm transition-all"
             >
-              View Details
+              Inspect Another Part
             </button>
 
             <button
