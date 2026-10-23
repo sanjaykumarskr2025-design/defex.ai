@@ -17,16 +17,16 @@ import { useAppState } from '../context/AppContext';
 export const InspectionPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { addInspection } = useAppState();
+  const { addInspection, partProfiles, machines } = useAppState();
 
   const [step, setStep] = useState<1 | 2 | 3>(() => {
     return searchParams.get('result') === 'true' ? 3 : 1;
   });
 
   const [mode, setMode] = useState<'camera' | 'upload'>('camera');
-  const [partType, setPartType] = useState('Gear Housing');
-  const [machine, setMachine] = useState('CNC Machine 01');
-  const [profile, setProfile] = useState('Default Profile');
+  const [partType, setPartType] = useState(() => searchParams.get('part') || (partProfiles[0]?.name || 'Gear Housing'));
+  const [machine, setMachine] = useState(() => machines[0]?.name || 'CNC Machine 01');
+  const [profile, setProfile] = useState('Default Profile (Precision Mode)');
 
   const [isScanning, setIsScanning] = useState(false);
   const [scanProgress, setScanProgress] = useState(0);
@@ -165,18 +165,22 @@ export const InspectionPage: React.FC = () => {
     }, 450);
   };
 
-  const handleSaveRecord = () => {
+  const [inspectedStatus, setInspectedStatus] = useState<'FAIL' | 'PASS' | 'UNCERTAIN'>('FAIL');
+
+  const handleSaveRecord = (finalStatus: 'PASS' | 'FAIL' | 'UNCERTAIN' = inspectedStatus) => {
+    const isPassing = finalStatus === 'PASS';
     addInspection({
       id: `ins-${Date.now()}`,
       partId: `Part #${Math.floor(100 + Math.random() * 900)}`,
       partType,
       machine,
       timestamp: 'Just now',
-      duration: '4.8 sec',
-      status: 'FAIL',
-      confidence: 92.3,
-      defects: ['Scratch 0.92'],
+      duration: '3.4 sec',
+      status: finalStatus,
+      confidence: isPassing ? 98.4 : 92.3,
+      defects: isPassing ? [] : ['Scratch 0.92'],
       dimensions: 'Within Tolerance',
+      imageSrc: capturedImage,
     });
     navigate('/queue');
   };
@@ -395,10 +399,14 @@ export const InspectionPage: React.FC = () => {
                   onChange={(e) => setPartType(e.target.value)}
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                 >
-                  <option>Gear Housing</option>
-                  <option>Turbine Flange</option>
-                  <option>Bearing Collar</option>
-                  <option>Valve Plate</option>
+                  {partProfiles.map((p) => (
+                    <option key={p.id} value={p.name}>
+                      {p.name} ({p.partNumber})
+                    </option>
+                  ))}
+                  {partProfiles.every((p) => p.name !== partType) && (
+                    <option value={partType}>{partType}</option>
+                  )}
                 </select>
               </div>
 
@@ -409,10 +417,11 @@ export const InspectionPage: React.FC = () => {
                   onChange={(e) => setMachine(e.target.value)}
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                 >
-                  <option>CNC Machine 01</option>
-                  <option>Press Machine 02</option>
-                  <option>Assembly Line 03</option>
-                  <option>Packaging Line 04</option>
+                  {machines.map((m) => (
+                    <option key={m.id} value={m.name}>
+                      {m.name} ({m.type})
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -478,18 +487,60 @@ export const InspectionPage: React.FC = () => {
           </div>
 
           {/* Overall Result Banner */}
-          <div className="bg-red-50 border border-red-200 rounded-2xl p-3.5 flex items-center justify-between shadow-xs">
+          <div className={`border rounded-2xl p-3.5 flex items-center justify-between shadow-xs ${
+            inspectedStatus === 'PASS'
+              ? 'bg-emerald-50 border-emerald-200'
+              : inspectedStatus === 'FAIL'
+              ? 'bg-red-50 border-red-200'
+              : 'bg-amber-50 border-amber-200'
+          }`}>
             <div className="flex items-center gap-3">
-              <span className="bg-red-600 text-white font-black text-xs px-2.5 py-1 rounded-lg shadow-sm">
-                FAIL
+              <span className={`text-white font-black text-xs px-2.5 py-1 rounded-lg shadow-sm ${
+                inspectedStatus === 'PASS'
+                  ? 'bg-emerald-600'
+                  : inspectedStatus === 'FAIL'
+                  ? 'bg-red-600'
+                  : 'bg-amber-600'
+              }`}>
+                {inspectedStatus}
               </span>
               <div className="text-left">
-                <span className="text-[11px] font-bold text-red-500 block uppercase">Overall Result</span>
-                <span className="text-sm font-black text-red-700">DEFECT DETECTED</span>
+                <span className={`text-[11px] font-bold block uppercase ${
+                  inspectedStatus === 'PASS' ? 'text-emerald-500' : inspectedStatus === 'FAIL' ? 'text-red-500' : 'text-amber-500'
+                }`}>
+                  AI Verdict
+                </span>
+                <span className={`text-sm font-black ${
+                  inspectedStatus === 'PASS' ? 'text-emerald-700' : inspectedStatus === 'FAIL' ? 'text-red-700' : 'text-amber-700'
+                }`}>
+                  {inspectedStatus === 'PASS' ? 'QUALITY VERIFIED - PASS' : inspectedStatus === 'FAIL' ? 'DEFECT DETECTED - SCRATCH' : 'UNCERTAIN - REVIEW REQ'}
+                </span>
               </div>
             </div>
 
-            <ChevronRight className="w-5 h-5 text-red-400" />
+            {/* Verdict Override Buttons */}
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setInspectedStatus('PASS')}
+                className={`px-2 py-1 rounded-lg text-[10px] font-black border transition-all ${
+                  inspectedStatus === 'PASS'
+                    ? 'bg-emerald-600 text-white border-emerald-600'
+                    : 'bg-white text-emerald-700 border-emerald-200 hover:bg-emerald-50'
+                }`}
+              >
+                PASS
+              </button>
+              <button
+                onClick={() => setInspectedStatus('FAIL')}
+                className={`px-2 py-1 rounded-lg text-[10px] font-black border transition-all ${
+                  inspectedStatus === 'FAIL'
+                    ? 'bg-red-600 text-white border-red-600'
+                    : 'bg-white text-red-700 border-red-200 hover:bg-red-50'
+                }`}
+              >
+                FAIL
+              </button>
+            </div>
           </div>
 
           {/* Result Data Card */}
@@ -500,23 +551,30 @@ export const InspectionPage: React.FC = () => {
             </div>
 
             <div className="flex items-center justify-between py-1.5 border-b border-slate-50 text-xs">
+              <span className="font-semibold text-slate-400">Machine</span>
+              <span className="font-bold text-slate-800">{machine}</span>
+            </div>
+
+            <div className="flex items-center justify-between py-1.5 border-b border-slate-50 text-xs">
               <span className="font-semibold text-slate-400">Confidence</span>
-              <span className="font-black text-blue-600">92.3%</span>
+              <span className="font-black text-blue-600">{inspectedStatus === 'PASS' ? '98.4%' : '92.3%'}</span>
             </div>
 
             <div className="flex items-center justify-between py-1.5 border-b border-slate-50 text-xs">
               <span className="font-semibold text-slate-400">Detected Defects</span>
-              <span className="font-black text-red-600">1 (Scratch)</span>
+              <span className={`font-black ${inspectedStatus === 'PASS' ? 'text-emerald-600' : 'text-red-600'}`}>
+                {inspectedStatus === 'PASS' ? '0 (None Detected)' : '1 (Scratch 0.92)'}
+              </span>
             </div>
 
             <div className="flex items-center justify-between py-1.5 border-b border-slate-50 text-xs">
               <span className="font-semibold text-slate-400">Dimensions</span>
-              <span className="font-bold text-emerald-600">Within Tolerance</span>
+              <span className="font-bold text-emerald-600">Within Tolerance (±0.02 mm)</span>
             </div>
 
             <div className="flex items-center justify-between py-1.5 text-xs">
               <span className="font-semibold text-slate-400">Inspection Time</span>
-              <span className="font-bold text-slate-800">4.8 sec</span>
+              <span className="font-bold text-slate-800">3.4 sec</span>
             </div>
           </div>
 
@@ -533,10 +591,10 @@ export const InspectionPage: React.FC = () => {
             </button>
 
             <button
-              onClick={handleSaveRecord}
+              onClick={() => handleSaveRecord(inspectedStatus)}
               className="w-full bg-blue-600 hover:bg-blue-700 active:scale-[0.99] text-white font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-blue-600/30 text-xs md:text-sm transition-all"
             >
-              Save Record
+              Save Record & Add to Queue
             </button>
           </div>
         </div>

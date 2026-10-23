@@ -8,6 +8,10 @@ import {
   Cpu,
   ArrowUpRight,
   ArrowDownRight,
+  Camera,
+  Play,
+  Sliders,
+  ChevronRight,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useAppState } from '../context/AppContext';
@@ -16,91 +20,118 @@ import { PartGraphic } from '../components/PartGraphic';
 export const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { machines, inspections } = useAppState();
+  const { machines, inspections, toggleMachineStatus } = useAppState();
 
+  const totalCount = inspections.length;
   const passedCount = inspections.filter((i) => i.status === 'PASS').length;
   const failedCount = inspections.filter((i) => i.status === 'FAIL').length;
   const uncertainCount = inspections.filter((i) => i.status === 'UNCERTAIN').length;
-  const totalCount = inspections.length;
+
+  const passPct = totalCount > 0 ? ((passedCount / totalCount) * 100).toFixed(1) : '0';
+  const failPct = totalCount > 0 ? ((failedCount / totalCount) * 100).toFixed(1) : '0';
+  const uncertainPct = totalCount > 0 ? ((uncertainCount / totalCount) * 100).toFixed(1) : '0';
 
   return (
     <div className="space-y-5 pb-20">
       {/* Greeting Header */}
-      <div className="pt-1">
-        <h2 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">
-          Good Morning, {user?.name?.split(' ')[0] || 'Sanjay'}
-        </h2>
-        <p className="text-xs md:text-sm font-medium text-slate-500 mt-0.5">
-          Here's what's happening with your inspection system.
-        </p>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pt-1">
+        <div>
+          <h2 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">
+            Good Day, {user?.name?.split(' ')[0] || 'Sanjay'}
+          </h2>
+          <p className="text-xs md:text-sm font-medium text-slate-500 mt-0.5">
+            DefEx.ai Vision System • {machines.filter((m) => m.status === 'running').length} of {machines.length} Lines Active
+          </p>
+        </div>
+
+        {/* Quick Inspection Launch CTA */}
+        <button
+          onClick={() => navigate('/inspection')}
+          className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs md:text-sm shadow-md shadow-blue-500/20 flex items-center gap-2 self-start md:self-auto transition-all"
+        >
+          <Camera className="w-4 h-4" />
+          <span>Start Real Camera Scan</span>
+        </button>
       </div>
 
       {/* 4 Metric Summary Cards */}
       <div className="grid grid-cols-4 gap-2.5 md:gap-3.5">
         {/* Card 1: Total */}
-        <div className="bg-white rounded-2xl p-2.5 md:p-4 border border-slate-100 shadow-[0_2px_10px_rgba(0,0,0,0.03)] flex flex-col justify-between">
+        <div
+          onClick={() => navigate('/queue')}
+          className="bg-white rounded-2xl p-2.5 md:p-4 border border-slate-100 shadow-[0_2px_10px_rgba(0,0,0,0.03)] flex flex-col justify-between cursor-pointer hover:border-blue-200 transition-all"
+        >
           <div className="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-1.5">
             <Layers className="w-4 h-4 md:w-5 md:h-5 stroke-[2.5]" />
           </div>
           <div>
-            <span className="text-[10px] md:text-xs font-semibold text-slate-500 line-clamp-1">Total</span>
+            <span className="text-[10px] md:text-xs font-semibold text-slate-500 line-clamp-1">Total Inspected</span>
             <div className="text-lg md:text-2xl font-black text-slate-900 leading-tight">
-              {totalCount * 42}
+              {totalCount}
             </div>
             <div className="flex items-center text-[9px] md:text-[11px] font-bold text-blue-600 mt-0.5">
               <ArrowUpRight className="w-2.5 h-2.5 mr-0.5" />
-              <span>+5.2%</span>
+              <span>100%</span>
             </div>
           </div>
         </div>
 
         {/* Card 2: Passed */}
-        <div className="bg-white rounded-2xl p-2.5 md:p-4 border border-slate-100 shadow-[0_2px_10px_rgba(0,0,0,0.03)] flex flex-col justify-between">
+        <div
+          onClick={() => navigate('/queue')}
+          className="bg-white rounded-2xl p-2.5 md:p-4 border border-slate-100 shadow-[0_2px_10px_rgba(0,0,0,0.03)] flex flex-col justify-between cursor-pointer hover:border-emerald-200 transition-all"
+        >
           <div className="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-1.5">
             <CheckCircle2 className="w-4 h-4 md:w-5 md:h-5 stroke-[2.5]" />
           </div>
           <div>
             <span className="text-[10px] md:text-xs font-semibold text-slate-500 line-clamp-1">Passed</span>
             <div className="text-lg md:text-2xl font-black text-slate-900 leading-tight">
-              206
+              {passedCount}
             </div>
             <div className="flex items-center text-[9px] md:text-[11px] font-bold text-emerald-600 mt-0.5">
               <ArrowUpRight className="w-2.5 h-2.5 mr-0.5" />
-              <span>+83.1%</span>
+              <span>{passPct}%</span>
             </div>
           </div>
         </div>
 
         {/* Card 3: Failed */}
-        <div className="bg-white rounded-2xl p-2.5 md:p-4 border border-slate-100 shadow-[0_2px_10px_rgba(0,0,0,0.03)] flex flex-col justify-between">
+        <div
+          onClick={() => navigate('/queue')}
+          className="bg-white rounded-2xl p-2.5 md:p-4 border border-slate-100 shadow-[0_2px_10px_rgba(0,0,0,0.03)] flex flex-col justify-between cursor-pointer hover:border-red-200 transition-all"
+        >
           <div className="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-red-50 text-red-600 flex items-center justify-center mb-1.5">
             <XCircle className="w-4 h-4 md:w-5 md:h-5 stroke-[2.5]" />
           </div>
           <div>
-            <span className="text-[10px] md:text-xs font-semibold text-slate-500 line-clamp-1">Failed</span>
+            <span className="text-[10px] md:text-xs font-semibold text-slate-500 line-clamp-1">Defects</span>
             <div className="text-lg md:text-2xl font-black text-slate-900 leading-tight">
-              32
+              {failedCount}
             </div>
             <div className="flex items-center text-[9px] md:text-[11px] font-bold text-red-600 mt-0.5">
               <ArrowDownRight className="w-2.5 h-2.5 mr-0.5" />
-              <span>-12.9%</span>
+              <span>{failPct}%</span>
             </div>
           </div>
         </div>
 
         {/* Card 4: Uncertain */}
-        <div className="bg-white rounded-2xl p-2.5 md:p-4 border border-slate-100 shadow-[0_2px_10px_rgba(0,0,0,0.03)] flex flex-col justify-between">
+        <div
+          onClick={() => navigate('/queue')}
+          className="bg-white rounded-2xl p-2.5 md:p-4 border border-slate-100 shadow-[0_2px_10px_rgba(0,0,0,0.03)] flex flex-col justify-between cursor-pointer hover:border-amber-200 transition-all"
+        >
           <div className="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center mb-1.5">
             <HelpCircle className="w-4 h-4 md:w-5 md:h-5 stroke-[2.5]" />
           </div>
           <div>
-            <span className="text-[10px] md:text-xs font-semibold text-slate-500 line-clamp-1">Uncertain</span>
+            <span className="text-[10px] md:text-xs font-semibold text-slate-500 line-clamp-1">Review Req.</span>
             <div className="text-lg md:text-2xl font-black text-slate-900 leading-tight">
-              10
+              {uncertainCount}
             </div>
             <div className="flex items-center text-[9px] md:text-[11px] font-bold text-amber-600 mt-0.5">
               <ArrowUpRight className="w-2.5 h-2.5 mr-0.5" />
-              <span>+4.0%</span>
+              <span>{uncertainPct}%</span>
             </div>
           </div>
         </div>
@@ -116,7 +147,7 @@ export const DashboardPage: React.FC = () => {
               onClick={() => navigate('/machines')}
               className="text-xs font-bold text-blue-600 hover:text-blue-700"
             >
-              View all
+              View all ({machines.length})
             </button>
           </div>
 
@@ -128,8 +159,9 @@ export const DashboardPage: React.FC = () => {
               return (
                 <div
                   key={m.id}
-                  onClick={() => navigate('/machines')}
+                  onClick={() => toggleMachineStatus(m.id)}
                   className="bg-white rounded-2xl p-3.5 border border-slate-100 shadow-[0_2px_10px_rgba(0,0,0,0.02)] flex items-center justify-between hover:border-blue-100 cursor-pointer transition-all"
+                  title="Click to toggle machine status"
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-700">
@@ -138,7 +170,7 @@ export const DashboardPage: React.FC = () => {
                     <div className="text-left">
                       <h4 className="font-bold text-slate-900 text-sm">{m.name}</h4>
                       <span className="text-[11px] font-medium text-slate-400">
-                        Last: {m.lastActive}
+                        {m.type} • Uptime {m.uptime}
                       </span>
                     </div>
                   </div>
@@ -159,7 +191,7 @@ export const DashboardPage: React.FC = () => {
                       </span>
                     </div>
                     <span className="text-[10px] font-medium text-slate-400 mt-0.5">
-                      {isRunning ? '18 min ago' : isStopped ? '12 min ago' : '4 min ago'}
+                      {m.lastActive}
                     </span>
                   </div>
                 </div>
@@ -176,7 +208,7 @@ export const DashboardPage: React.FC = () => {
               onClick={() => navigate('/queue')}
               className="text-xs font-bold text-blue-600 hover:text-blue-700"
             >
-              View all
+              View all ({inspections.length})
             </button>
           </div>
 
@@ -192,13 +224,17 @@ export const DashboardPage: React.FC = () => {
                   className="bg-white rounded-2xl p-3 border border-slate-100 shadow-[0_2px_10px_rgba(0,0,0,0.02)] flex items-center justify-between hover:border-blue-100 cursor-pointer transition-all"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-xl overflow-hidden bg-slate-900 flex-shrink-0">
-                      <PartGraphic className="w-full h-full" showBoundingBoxes={isFail} />
+                    <div className="w-12 h-12 rounded-xl overflow-hidden bg-slate-900 flex-shrink-0 flex items-center justify-center">
+                      {item.imageSrc ? (
+                        <img src={item.imageSrc} alt={item.partId} className="w-full h-full object-cover" />
+                      ) : (
+                        <PartGraphic className="w-full h-full" showBoundingBoxes={isFail} />
+                      )}
                     </div>
                     <div className="text-left">
                       <h4 className="font-bold text-slate-900 text-sm">{item.partId}</h4>
                       <span className="text-xs font-medium text-slate-400 block">
-                        {item.machine}
+                        {item.partType} • {item.machine}
                       </span>
                     </div>
                   </div>

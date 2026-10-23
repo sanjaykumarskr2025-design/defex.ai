@@ -20,6 +20,7 @@ export interface InspectionItem {
   confidence: number;
   defects?: string[];
   dimensions: string;
+  imageSrc?: string | null;
 }
 
 export interface AlertItem {
@@ -32,16 +33,56 @@ export interface AlertItem {
   acknowledged?: boolean;
 }
 
+export interface PartProfile {
+  id: string;
+  name: string;
+  partNumber: string;
+  material: string;
+  tolerance: string;
+  surfaceFinish: string;
+  inspectionPoints: number;
+  status: 'Active' | 'Draft' | 'Archived';
+  defectTypes: string[];
+}
+
+export interface InspectionRules {
+  minConfidence: number;
+  strictness: 'Strict' | 'Normal' | 'High-Speed';
+  autoSaveFailures: boolean;
+  alertOnDefect: boolean;
+}
+
+export interface NotificationSettings {
+  emailAlerts: boolean;
+  smsAlerts: boolean;
+  webhookAlerts: boolean;
+  criticalOnly: boolean;
+}
+
 interface AppContextType {
   machines: Machine[];
   inspections: InspectionItem[];
   alerts: AlertItem[];
+  partProfiles: PartProfile[];
+  rules: InspectionRules;
+  notifications: NotificationSettings;
+  deviceView: 'web' | 'mobile';
+
+  // Actions
   addInspection: (item: InspectionItem) => void;
+  deleteInspection: (id: string) => void;
   toggleMachineStatus: (id: string) => void;
   addMachine: (name: string, type: string) => void;
+  deleteMachine: (id: string) => void;
   acknowledgeAlert: (id: string) => void;
-  deviceView: 'web' | 'mobile';
+  resolveAlert: (id: string) => void;
+  clearAcknowledgedAlerts: () => void;
+  updatePartProfile: (profile: PartProfile) => void;
+  updateRules: (rules: Partial<InspectionRules>) => void;
+  updateNotifications: (settings: Partial<NotificationSettings>) => void;
   setDeviceView: (view: 'web' | 'mobile') => void;
+  resetToFactoryDefaults: () => void;
+  exportDatabaseJSON: () => void;
 }
 
 const initialMachines: Machine[] = [
@@ -68,6 +109,56 @@ const initialAlerts: AlertItem[] = [
   { id: 'alt-5', title: 'Maintenance Due', machine: 'Packaging Line 04', timestamp: 'Yesterday', severity: 'info', description: 'Scheduled quarterly lubrication inspection cycle' },
 ];
 
+const initialPartProfiles: PartProfile[] = [
+  {
+    id: 'p-1',
+    name: 'Gear Housing',
+    partNumber: 'Part #A125',
+    material: 'Aluminium 6061-T6',
+    tolerance: '±0.05 mm',
+    surfaceFinish: 'Ra 0.8 µm',
+    inspectionPoints: 5,
+    status: 'Active',
+    defectTypes: ['Scratch', 'Crack', 'Hole', 'Deformation'],
+  },
+  {
+    id: 'p-2',
+    name: 'Turbine Flange',
+    partNumber: 'Part #B567',
+    material: 'Stainless Steel 316',
+    tolerance: '±0.02 mm',
+    surfaceFinish: 'Ra 0.4 µm',
+    inspectionPoints: 8,
+    status: 'Active',
+    defectTypes: ['Pitting', 'Crack', 'Surface Scuff'],
+  },
+  {
+    id: 'p-3',
+    name: 'Bearing Collar',
+    partNumber: 'Part #C690',
+    material: 'Chrome Steel 52100',
+    tolerance: '±0.01 mm',
+    surfaceFinish: 'Ra 0.2 µm',
+    inspectionPoints: 4,
+    status: 'Active',
+    defectTypes: ['Wear', 'Groove', 'Rough Edge'],
+  },
+];
+
+const initialRules: InspectionRules = {
+  minConfidence: 85,
+  strictness: 'Normal',
+  autoSaveFailures: true,
+  alertOnDefect: true,
+};
+
+const initialNotifications: NotificationSettings = {
+  emailAlerts: true,
+  smsAlerts: false,
+  webhookAlerts: true,
+  criticalOnly: false,
+};
+
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -86,6 +177,21 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return saved ? JSON.parse(saved) : initialAlerts;
   });
 
+  const [partProfiles, setPartProfiles] = useState<PartProfile[]>(() => {
+    const saved = localStorage.getItem('defex_profiles');
+    return saved ? JSON.parse(saved) : initialPartProfiles;
+  });
+
+  const [rules, setRules] = useState<InspectionRules>(() => {
+    const saved = localStorage.getItem('defex_rules');
+    return saved ? JSON.parse(saved) : initialRules;
+  });
+
+  const [notifications, setNotifications] = useState<NotificationSettings>(() => {
+    const saved = localStorage.getItem('defex_notifications');
+    return saved ? JSON.parse(saved) : initialNotifications;
+  });
+
   const [deviceView, setDeviceView] = useState<'web' | 'mobile'>('web');
 
   useEffect(() => {
@@ -100,8 +206,37 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     localStorage.setItem('defex_alerts', JSON.stringify(alerts));
   }, [alerts]);
 
+  useEffect(() => {
+    localStorage.setItem('defex_profiles', JSON.stringify(partProfiles));
+  }, [partProfiles]);
+
+  useEffect(() => {
+    localStorage.setItem('defex_rules', JSON.stringify(rules));
+  }, [rules]);
+
+  useEffect(() => {
+    localStorage.setItem('defex_notifications', JSON.stringify(notifications));
+  }, [notifications]);
+
   const addInspection = (item: InspectionItem) => {
     setInspections((prev) => [item, ...prev]);
+
+    // If item is fail and alertOnDefect is on, auto generate alert!
+    if (item.status === 'FAIL' && rules.alertOnDefect) {
+      const newAlert: AlertItem = {
+        id: `alt-${Date.now()}`,
+        title: `Defect Detected (${item.defects?.[0] || 'Quality Breach'})`,
+        machine: item.machine,
+        timestamp: 'Just now',
+        severity: 'critical',
+        description: `Automated alert for ${item.partId} (${item.partType}). Confidence: ${item.confidence}%`,
+      };
+      setAlerts((prev) => [newAlert, ...prev]);
+    }
+  };
+
+  const deleteInspection = (id: string) => {
+    setInspections((prev) => prev.filter((i) => i.id !== id));
   };
 
   const toggleMachineStatus = (id: string) => {
@@ -126,8 +261,61 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setMachines((prev) => [...prev, newMachine]);
   };
 
+  const deleteMachine = (id: string) => {
+    setMachines((prev) => prev.filter((m) => m.id !== id));
+  };
+
   const acknowledgeAlert = (id: string) => {
     setAlerts((prev) => prev.map((a) => (a.id === id ? { ...a, acknowledged: true } : a)));
+  };
+
+  const resolveAlert = (id: string) => {
+    setAlerts((prev) => prev.filter((a) => a.id !== id));
+  };
+
+  const clearAcknowledgedAlerts = () => {
+    setAlerts((prev) => prev.filter((a) => !a.acknowledged));
+  };
+
+  const updatePartProfile = (profile: PartProfile) => {
+    setPartProfiles((prev) => prev.map((p) => (p.id === profile.id ? profile : p)));
+  };
+
+  const updateRules = (newRules: Partial<InspectionRules>) => {
+    setRules((prev) => ({ ...prev, ...newRules }));
+  };
+
+  const updateNotifications = (newSettings: Partial<NotificationSettings>) => {
+    setNotifications((prev) => ({ ...prev, ...newSettings }));
+  };
+
+  const resetToFactoryDefaults = () => {
+    localStorage.clear();
+    setMachines(initialMachines);
+    setInspections(initialInspections);
+    setAlerts(initialAlerts);
+    setPartProfiles(initialPartProfiles);
+    setRules(initialRules);
+    setNotifications(initialNotifications);
+  };
+
+  const exportDatabaseJSON = () => {
+    const data = {
+      machines,
+      inspections,
+      alerts,
+      partProfiles,
+      rules,
+      notifications,
+      exportedAt: new Date().toISOString(),
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `defex_ai_backup_${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -136,12 +324,24 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         machines,
         inspections,
         alerts,
+        partProfiles,
+        rules,
+        notifications,
+        deviceView,
         addInspection,
+        deleteInspection,
         toggleMachineStatus,
         addMachine,
+        deleteMachine,
         acknowledgeAlert,
-        deviceView,
+        resolveAlert,
+        clearAcknowledgedAlerts,
+        updatePartProfile,
+        updateRules,
+        updateNotifications,
         setDeviceView,
+        resetToFactoryDefaults,
+        exportDatabaseJSON,
       }}
     >
       {children}
