@@ -23,7 +23,7 @@ function AppLayout() {
   const { isAuthenticated } = useAuth();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-  const isLoginPage = location.pathname === '/login';
+  const isLoginPage = location.pathname === '/login' || location.pathname === '/register';
 
   // Get screen titles and back button configurations
   const getPageConfig = () => {
