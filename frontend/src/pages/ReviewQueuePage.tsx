@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Filter, ChevronRight, CheckCircle2, XCircle, AlertTriangle, Search, Trash2, Check } from 'lucide-react';
-import { useAppState } from '../context/AppContext';
+import { Filter, ChevronRight, CheckCircle2, XCircle, AlertTriangle, Search, Trash2, Check, Award } from 'lucide-react';
+import { useAppState, InspectionItem } from '../context/AppContext';
 import { PartGraphic } from '../components/PartGraphic';
+import { QualityCertificateModal } from '../components/QualityCertificateModal';
 
 export const ReviewQueuePage: React.FC = () => {
   const navigate = useNavigate();
   const { inspections, deleteInspection } = useAppState();
   const [filter, setFilter] = useState<'ALL' | 'FAIL' | 'UNCERTAIN'>('ALL');
   const [search, setSearch] = useState('');
+  const [selectedCertItem, setSelectedCertItem] = useState<InspectionItem | null>(null);
   const [toast, setToast] = useState<string | null>(null);
 
   const showToast = (msg: string) => {
@@ -150,7 +152,18 @@ export const ReviewQueuePage: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedCertItem(item);
+                    }}
+                    className="p-2 text-slate-400 hover:text-amber-500 hover:bg-amber-50 rounded-lg transition-colors"
+                    title="Generate ISO 9001 Certificate"
+                  >
+                    <Award className="w-4 h-4" />
+                  </button>
+
                   <button
                     onClick={(e) => handleDelete(item.id, e)}
                     className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
@@ -165,6 +178,14 @@ export const ReviewQueuePage: React.FC = () => {
           })
         )}
       </div>
+
+      {/* ISO 9001 Certificate Modal */}
+      {selectedCertItem && (
+        <QualityCertificateModal
+          item={selectedCertItem}
+          onClose={() => setSelectedCertItem(null)}
+        />
+      )}
     </div>
   );
 };

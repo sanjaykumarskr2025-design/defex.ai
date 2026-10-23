@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Check, Edit3, ShieldCheck, Layers, Ruler, Plus, X, Save, Sparkles } from 'lucide-react';
 import { PartGraphic } from '../components/PartGraphic';
+import { CadViewer3D } from '../components/CadViewer3D';
 import { useAppState, PartProfile } from '../context/AppContext';
 
 export const PartDetailsPage: React.FC = () => {
@@ -10,6 +11,7 @@ export const PartDetailsPage: React.FC = () => {
 
   const [activeProfileId, setActiveProfileId] = useState<string>(partProfiles[0]?.id || 'p-1');
   const [isEditing, setIsEditing] = useState(false);
+  const [show3dDefects, setShow3dDefects] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
 
   const currentProfile = partProfiles.find((p) => p.id === activeProfileId) || partProfiles[0] || {
@@ -111,13 +113,27 @@ export const PartDetailsPage: React.FC = () => {
         </button>
       </div>
 
-      {/* 3D Part Render Card */}
-      <div className="bg-slate-950 rounded-2xl p-6 shadow-xl border border-slate-800 flex items-center justify-center relative overflow-hidden">
-        <div className="absolute top-3 left-3 bg-slate-800/80 backdrop-blur-xs text-blue-400 text-[10px] font-bold px-2 py-0.5 rounded-md border border-slate-700">
-          CAD Model • Raytraced
+      {/* 3D Interactive CAD Model Card */}
+      <div className="space-y-1.5">
+        <div className="w-full h-80">
+          <CadViewer3D
+            partType={currentProfile.name}
+            showDefects={show3dDefects}
+            className="w-full h-full"
+          />
         </div>
-        <div className="w-56 h-56">
-          <PartGraphic className="w-full h-full" showBoundingBoxes={false} />
+        <div className="flex items-center justify-between px-1">
+          <span className="text-[10px] font-semibold text-slate-400">Interactive 3D WebGL Mesh</span>
+          <button
+            onClick={() => setShow3dDefects(!show3dDefects)}
+            className={`text-[10px] font-bold px-2 py-0.5 rounded transition-all ${
+              show3dDefects
+                ? 'bg-red-50 text-red-600 border border-red-200'
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+            }`}
+          >
+            {show3dDefects ? 'Hide Defect Pins' : 'Show 3D Defect Coordinates'}
+          </button>
         </div>
       </div>
 

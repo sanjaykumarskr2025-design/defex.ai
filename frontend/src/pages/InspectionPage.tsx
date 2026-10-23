@@ -10,9 +10,16 @@ import {
   SwitchCamera,
   AlertCircle,
   VideoOff,
+  Volume2,
+  VolumeX,
+  Award,
+  FileCheck2,
 } from 'lucide-react';
 import { PartGraphic } from '../components/PartGraphic';
-import { useAppState } from '../context/AppContext';
+import { useAppState, InspectionItem } from '../context/AppContext';
+import { audioEngine } from '../utils/audioEngine';
+import { ClientVisionEngine, VisionAnalysisResult } from '../utils/visionEngine';
+import { QualityCertificateModal } from '../components/QualityCertificateModal';
 
 export const InspectionPage: React.FC = () => {
   const navigate = useNavigate();
@@ -30,6 +37,9 @@ export const InspectionPage: React.FC = () => {
 
   const [isScanning, setIsScanning] = useState(false);
   const [scanProgress, setScanProgress] = useState(0);
+  const [isAudioMuted, setIsAudioMuted] = useState(!audioEngine.isEnabled());
+  const [showCertModal, setShowCertModal] = useState(false);
+  const [visionResult, setVisionResult] = useState<VisionAnalysisResult | null>(null);
 
   // Real Camera States
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -140,46 +150,102 @@ export const InspectionPage: React.FC = () => {
     }
   };
 
-  const startAnalysis = () => {
+  const toggleAudio = () => {
+    const next = !audioEngine.isEnabled();
+    audioEngine.setEnabled(next);
+    setIsAudioMuted(!next);
+  };
+
+  const startAnalysis = async () => {
+    let frame = capturedImage;
     // Capture real photo if camera is active
     if (mode === 'camera' && isCameraActive) {
       const photo = captureCurrentFrame();
-      if (photo) setCapturedImage(photo);
+      if (photo) {
+        frame = photo;
+        setCapturedImage(photo);
+      }
     }
 
     stopCamera();
     setStep(2);
     setIsScanning(true);
     setScanProgress(0);
+    audioEngine.playScanSweep();
 
-    const interval = setInterval(() => {
+    // Run client-side computer vision edge & defect contour analysis
+    let analysisPromise: Promise<VisionAnalysisResult> | null = null;
+    if (frame) {
+      analysisPromise = ClientVisionEngine.analyzeImage(frame);
+    }
+
+    const interval = setInterval(async () => {
       setScanProgress((prev) => {
         if (prev >= 100) {
           clearInterval(interval);
-          setIsScanning(false);
-          setStep(3);
           return 100;
         }
         return prev + 25;
       });
-    }, 450);
+    }, 400);
+
+    // Await visual analysis completion
+    let result: VisionAnalysisResult | null = null;
+    if (analysisPromise) {
+      try {
+        result = await analysisPromise;
+      } catch (e) {
+        console.warn('Vision engine analysis fallback:', e);
+      }
+    }
+
+    // Finish when animation reaches 100
+    setTimeout(() => {
+      clearInterval(interval);
+      setIsScanning(false);
+
+      if (result) {
+        setVisionResult(result);
+        setInspectedStatus(result.status);
+        if (result.annotatedImage) {
+          setCapturedImage(result.annotatedImage);
+        }
+        if (result.status === 'PASS') {
+          audioEngine.playPass();
+        } else {
+          audioEngine.playFail();
+        }
+      } else {
+        // Fallback default
+        setInspectedStatus('FAIL');
+        audioEngine.playFail();
+      }
+
+      setStep(3);
+    }, 1700);
   };
 
   const [inspectedStatus, setInspectedStatus] = useState<'FAIL' | 'PASS' | 'UNCERTAIN'>('FAIL');
 
   const handleSaveRecord = (finalStatus: 'PASS' | 'FAIL' | 'UNCERTAIN' = inspectedStatus) => {
     const isPassing = finalStatus === 'PASS';
+    const computedDefects = isPassing
+      ? []
+      : visionResult && visionResult.defects.length > 0
+      ? visionResult.defects.map((d) => `${d.type} (${d.confidence}%)`)
+      : ['Surface Scratch (92.3%)'];
+
     addInspection({
       id: `ins-${Date.now()}`,
       partId: `Part #${Math.floor(100 + Math.random() * 900)}`,
       partType,
       machine,
       timestamp: 'Just now',
-      duration: '3.4 sec',
+      duration: visionResult ? `${(visionResult.processingTimeMs / 1000).toFixed(1)}s` : '3.2 sec',
       status: finalStatus,
-      confidence: isPassing ? 98.4 : 92.3,
-      defects: isPassing ? [] : ['Scratch 0.92'],
-      dimensions: 'Within Tolerance',
+      confidence: visionResult ? visionResult.overallConfidence : isPassing ? 98.4 : 92.3,
+      defects: computedDefects,
+      dimensions: visionResult ? visionResult.dimensionsStatus : 'Within Tolerance (±0.02mm)',
       imageSrc: capturedImage,
     });
     navigate('/queue');
@@ -248,6 +314,14 @@ export const InspectionPage: React.FC = () => {
               </div>
 
               <div className="flex items-center gap-1.5">
+                <button
+                  onClick={toggleAudio}
+                  className="p-1.5 rounded-full bg-slate-900/80 backdrop-blur-md text-slate-300 hover:text-white border border-slate-700/50"
+                  title={isAudioMuted ? 'Unmute Audio Signals' : 'Mute Audio Signals'}
+                >
+                  {isAudioMuted ? <VolumeX className="w-4 h-4 text-slate-400" /> : <Volume2 className="w-4 h-4 text-cyan-400" />}
+                </button>
+
                 {isCameraActive && (
                   <button
                     onClick={toggleFacingMode}
@@ -557,32 +631,51 @@ export const InspectionPage: React.FC = () => {
 
             <div className="flex items-center justify-between py-1.5 border-b border-slate-50 text-xs">
               <span className="font-semibold text-slate-400">Confidence</span>
-              <span className="font-black text-blue-600">{inspectedStatus === 'PASS' ? '98.4%' : '92.3%'}</span>
+              <span className="font-black text-blue-600">
+                {visionResult ? `${visionResult.overallConfidence}%` : inspectedStatus === 'PASS' ? '98.4%' : '92.3%'}
+              </span>
             </div>
 
             <div className="flex items-center justify-between py-1.5 border-b border-slate-50 text-xs">
               <span className="font-semibold text-slate-400">Detected Defects</span>
               <span className={`font-black ${inspectedStatus === 'PASS' ? 'text-emerald-600' : 'text-red-600'}`}>
-                {inspectedStatus === 'PASS' ? '0 (None Detected)' : '1 (Scratch 0.92)'}
+                {inspectedStatus === 'PASS'
+                  ? '0 (None Detected)'
+                  : visionResult && visionResult.defects.length > 0
+                  ? `${visionResult.defects.length} (${visionResult.defects.map((d) => d.type).join(', ')})`
+                  : '1 (Surface Scratch)'}
               </span>
             </div>
 
             <div className="flex items-center justify-between py-1.5 border-b border-slate-50 text-xs">
               <span className="font-semibold text-slate-400">Dimensions</span>
-              <span className="font-bold text-emerald-600">Within Tolerance (±0.02 mm)</span>
+              <span className="font-bold text-emerald-600">
+                {visionResult ? visionResult.dimensionsStatus : 'Within Tolerance (±0.02 mm)'}
+              </span>
             </div>
 
             <div className="flex items-center justify-between py-1.5 text-xs">
-              <span className="font-semibold text-slate-400">Inspection Time</span>
-              <span className="font-bold text-slate-800">3.4 sec</span>
+              <span className="font-semibold text-slate-400">Processing Time</span>
+              <span className="font-bold text-slate-800">
+                {visionResult ? `${visionResult.processingTimeMs} ms (Client Edge)` : '3.4 sec'}
+              </span>
             </div>
           </div>
 
-          {/* Actions Button Group */}
+          {/* Certificate Generation & Actions Button Group */}
           <div className="space-y-2">
+            <button
+              onClick={() => setShowCertModal(true)}
+              className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 px-4 rounded-xl shadow-xs text-xs md:text-sm flex items-center justify-center gap-2 transition-all border border-slate-800"
+            >
+              <Award className="w-4 h-4 text-amber-400" />
+              <span>Generate ISO 9001 Certificate of Inspection</span>
+            </button>
+
             <button
               onClick={() => {
                 setCapturedImage(null);
+                setVisionResult(null);
                 setStep(1);
               }}
               className="w-full bg-white hover:bg-slate-50 text-blue-600 border border-blue-200 font-bold py-3 px-4 rounded-xl shadow-xs text-xs md:text-sm transition-all"
@@ -598,6 +691,25 @@ export const InspectionPage: React.FC = () => {
             </button>
           </div>
         </div>
+      )}
+
+      {/* ISO 9001 Certificate Modal */}
+      {showCertModal && (
+        <QualityCertificateModal
+          item={{
+            id: `ins-${Date.now()}`,
+            partId: `Part #${Math.floor(100 + Math.random() * 900)}`,
+            partType,
+            machine,
+            timestamp: 'Just now',
+            duration: visionResult ? `${(visionResult.processingTimeMs / 1000).toFixed(1)}s` : '3.4 sec',
+            status: inspectedStatus,
+            confidence: visionResult ? visionResult.overallConfidence : inspectedStatus === 'PASS' ? 98.4 : 92.3,
+            defects: inspectedStatus === 'PASS' ? [] : visionResult?.defects.map((d) => `${d.type} (${d.confidence}%)`) || ['Surface Scratch (92.3%)'],
+            dimensions: visionResult?.dimensionsStatus || 'Within Tolerance (±0.02mm)',
+          }}
+          onClose={() => setShowCertModal(false)}
+        />
       )}
     </div>
   );
