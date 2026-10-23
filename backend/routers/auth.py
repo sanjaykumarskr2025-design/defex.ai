@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Form
 from sqlalchemy.orm import Session
 from database import User, get_db
 from schemas import UserCreate, User as UserSchema, TokenResponse
@@ -35,7 +35,11 @@ async def register(user_data: UserCreate, db: Session = Depends(get_db)):
     }
 
 @router.post("/login", response_model=TokenResponse)
-async def login(email: str, password: str, db: Session = Depends(get_db)):
+async def login(
+    email: str = Form(...),
+    password: str = Form(...),
+    db: Session = Depends(get_db)
+):
     # Find user
     user = db.query(User).filter(User.email == email).first()
     if not user or not verify_password(password, user.hashed_password):

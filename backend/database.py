@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine, Column, String, DateTime, Boolean, Float, Integer, ForeignKey, Text, JSON
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid
 import os
 
@@ -25,7 +25,7 @@ class User(Base):
     name = Column(String)
     hashed_password = Column(String)
     role = Column(String, default="operator")
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     machines = relationship("Machine", back_populates="user")
     components = relationship("Component", back_populates="user")
@@ -42,7 +42,7 @@ class Machine(Base):
     type = Column(String)
     location = Column(String)
     status = Column(String, default="operational")
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     user = relationship("User", back_populates="machines")
     components = relationship("Component", back_populates="machine")
@@ -60,7 +60,7 @@ class Component(Base):
     type = Column(String)
     serial_number = Column(String, nullable=True)
     condition = Column(String, default="good")
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     user = relationship("User", back_populates="components")
     machine = relationship("Machine", back_populates="components")
@@ -78,9 +78,9 @@ class Inspection(Base):
     image_path = Column(String, nullable=True)
     status = Column(String, default="completed")
     severity = Column(String, default="low")
-    defects = Column(JSON, default=list)
+    defects = Column(JSON, default=lambda: [])
     recommendation = Column(Text, default="")
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     user = relationship("User", back_populates="inspections")
     machine = relationship("Machine", back_populates="inspections")
@@ -97,7 +97,7 @@ class Alert(Base):
     description = Column(Text)
     priority = Column(String, default="medium")
     status = Column(String, default="open")
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     acknowledged_at = Column(DateTime, nullable=True)
     resolved_at = Column(DateTime, nullable=True)
 
@@ -117,7 +117,7 @@ class Maintenance(Base):
     priority = Column(String, default="medium")
     due_date = Column(DateTime)
     status = Column(String, default="pending")
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     completed_at = Column(DateTime, nullable=True)
 
     user = relationship("User", back_populates="maintenance")

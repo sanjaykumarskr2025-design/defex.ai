@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
-from database import Alert, User, get_db
+from sqlalchemy.orm import Session, joinedload
+from database import Alert, User, Machine, Component, get_db
 from schemas import Alert as AlertSchema, AlertCreate, ListResponse
 from auth import get_current_user
-from datetime import datetime
+from datetime import datetime, timezone
 
 router = APIRouter(prefix="/api/v1/alerts", tags=["alerts"])
 
@@ -15,17 +15,17 @@ async def list_alerts(
     db: Session = Depends(get_db)
 ):
     total = db.query(Alert).filter(Alert.user_id == current_user.id).count()
-    items = db.query(Alert).filter(Alert.user_id == current_user.id).order_by(Alert.created_at.desc()).offset(skip).limit(limit).all()
+    # Use eager loading to avoid N+1 queries
+    items = db.query(Alert).options(
+        joinedload(Alert.machine),
+        joinedload(Alert.component)
+    ).filter(Alert.user_id == current_user.id).order_by(Alert.created_at.desc()).offset(skip).limit(limit).all()
 
     result_items = []
     for alert in items:
-        from database import Machine, Component
-        machine = db.query(Machine).filter(Machine.id == alert.machine_id).first()
-        component = db.query(Component).filter(Component.id == alert.component_id).first() if alert.component_id else None
-
         alert_dict = AlertSchema.from_orm(alert).dict()
-        alert_dict["machine_name"] = machine.name if machine else "Unknown"
-        alert_dict["component_name"] = component.name if component else "N/A"
+        alert_dict["machine_name"] = alert.machine.name if alert.machine else "Unknown"
+        alert_dict["component_name"] = alert.component.name if alert.component else "N/A"
         result_items.append(alert_dict)
 
     return {
@@ -63,7 +63,7 @@ async def acknowledge_alert(
         raise HTTPException(status_code=404, detail="Alert not found")
 
     alert.status = "acknowledged"
-    alert.acknowledged_at = datetime.utcnow()
+    alert.acknowledged_at = datetime.now(timezone.utc)
     db.commit()
     db.refresh(alert)
     return AlertSchema.from_orm(alert)
@@ -82,7 +82,7 @@ async def resolve_alert(
         raise HTTPException(status_code=404, detail="Alert not found")
 
     alert.status = "resolved"
-    alert.resolved_at = datetime.utcnow()
+    alert.resolved_at = datetime.now(timezone.utc)
     db.commit()
     db.refresh(alert)
     return AlertSchema.from_orm(alert)

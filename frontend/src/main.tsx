@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client'
 
 const App = () => {
   return (
-    <div style={{ backgroundColor: '#1a1a2e', color: '#white', minHeight: '100vh', padding: '40px', fontFamily: 'Arial, sans-serif' }}>
+    <div style={{ backgroundColor: '#1a1a2e', color: '#ffffff', minHeight: '100vh', padding: '40px', fontFamily: 'Arial, sans-serif' }}>
       <h1 style={{ color: '#00d4ff', fontSize: '48px', marginBottom: '20px' }}>DefEx.ai</h1>
       <p style={{ fontSize: '24px', marginBottom: '40px' }}>AI-Powered Defect Detection Platform</p>
 
@@ -41,7 +41,10 @@ const App = () => {
   )
 }
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
+const rootElement = document.getElementById('root');
+if (!rootElement) throw new Error('Root element not found');
+
+ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
     <App />
   </React.StrictMode>,

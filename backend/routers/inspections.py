@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from database import Inspection, Component, Machine, User, Alert, get_db
 from schemas import Inspection as InspectionSchema, ListResponse
 from auth import get_current_user
@@ -7,7 +7,7 @@ import cv2
 import numpy as np
 from pathlib import Path
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 
 router = APIRouter(prefix="/api/v1/inspections", tags=["inspections"])
 
@@ -26,7 +26,9 @@ def detect_defects_heuristic(image_path: str) -> dict:
 
         # Edge detection
         edges = cv2.Canny(img, 100, 200)
-        contours, _ = cv2.findContours(edges, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        # Handle OpenCV version differences (3.x vs 4.x)
+        result = cv2.findContours(edges, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        contours = result[0] if len(result) == 3 else result[1]
 
         defects = []
         severity = "low"
@@ -78,16 +80,17 @@ async def list_inspections(
     db: Session = Depends(get_db)
 ):
     total = db.query(Inspection).filter(Inspection.user_id == current_user.id).count()
-    items = db.query(Inspection).filter(Inspection.user_id == current_user.id).order_by(Inspection.created_at.desc()).offset(skip).limit(limit).all()
+    # Use eager loading to avoid N+1
+    items = db.query(Inspection).options(
+        joinedload(Inspection.machine),
+        joinedload(Inspection.component)
+    ).filter(Inspection.user_id == current_user.id).order_by(Inspection.created_at.desc()).offset(skip).limit(limit).all()
 
     result_items = []
     for inspection in items:
-        machine = db.query(Machine).filter(Machine.id == inspection.machine_id).first()
-        component = db.query(Component).filter(Component.id == inspection.component_id).first()
-
         inspection_dict = InspectionSchema.from_orm(inspection).dict()
-        inspection_dict["machine_name"] = machine.name if machine else "Unknown"
-        inspection_dict["component_name"] = component.name if component else "Unknown"
+        inspection_dict["machine_name"] = inspection.machine.name if inspection.machine else "Unknown"
+        inspection_dict["component_name"] = inspection.component.name if inspection.component else "Unknown"
         result_items.append(inspection_dict)
 
     return {
@@ -135,7 +138,7 @@ async def create_inspection(
         raise HTTPException(status_code=404, detail="Machine not found")
 
     # Save uploaded file
-    file_path = UPLOAD_DIR / f"{datetime.utcnow().timestamp()}_{file.filename}"
+    file_path = UPLOAD_DIR / f"{datetime.now(timezone.utc).timestamp()}_{file.filename}"
     with open(file_path, "wb") as f:
         content = await file.read()
         f.write(content)
