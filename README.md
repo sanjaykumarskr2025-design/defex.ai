@@ -7,7 +7,7 @@ DefEx.ai is a full-stack web application for AI-powered industrial component ins
 ## Project Structure
 
 ```
-partsight-ai/
+defex-ai/
 ├── frontend/                 # React + TypeScript + Vite
 │   ├── src/
 │   │   ├── pages/           # Page components
@@ -374,7 +374,7 @@ pip install --force-reinstall -r requirements.txt
 ### Database issues
 ```bash
 # Reset database (deletes all data)
-rm partsight.db
+rm defex.db
 python -c "from database import init_db; init_db()"
 ```
 

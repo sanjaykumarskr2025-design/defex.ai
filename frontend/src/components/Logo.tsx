@@ -58,7 +58,7 @@ export const Logo: React.FC<LogoProps> = ({ size = 'md', variant = 'dark', showS
 
       <div className="flex flex-col text-left leading-none">
         <span className={`${titleSizes[size]} ${textColor} tracking-tight font-sans`}>
-          PartSight <span className="text-blue-600">AI</span>
+          DefEx<span className="text-blue-600">.ai</span>
         </span>
         {showSubtitle && (
           <span className={`${subSizes[size]} ${subColor} uppercase font-sans mt-0.5`}>

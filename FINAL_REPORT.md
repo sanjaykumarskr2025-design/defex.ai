@@ -1,5 +1,5 @@
-# PartSight AI - Final Implementation Report
-**Project:** PartSight AI - AI-Powered Industrial Part Inspection Platform  
+# DefEx.ai - Final Implementation Report
+**Project:** DefEx.ai - AI-Powered Industrial Part Inspection Platform  
 **Date:** October 23, 2026  
 **Status:** COMPLETE - Production Ready  
 **Version:** 1.0.0
@@ -8,7 +8,7 @@
 
 ## Executive Summary
 
-PartSight AI has been successfully built as a complete, production-ready full-stack web application. The system includes a modern React/TypeScript frontend with a professional industrial dashboard, a robust FastAPI backend with comprehensive REST APIs, SQLAlchemy ORM with SQLite database, JWT-based authentication, AI-powered computer vision inspection capabilities, and all required features for industrial component management and defect detection.
+DefEx.ai has been successfully built as a complete, production-ready full-stack web application. The system includes a modern React/TypeScript frontend with a professional industrial dashboard, a robust FastAPI backend with comprehensive REST APIs, SQLAlchemy ORM with SQLite database, JWT-based authentication, AI-powered computer vision inspection capabilities, and all required features for industrial component management and defect detection.
 
 **Key Achievement:** All 10 implementation phases completed. The application is fully functional, tested, documented, and ready for deployment.
 
@@ -562,7 +562,7 @@ Accessibility:       PASS
 
 **Backend (.env):**
 ```
-DATABASE_URL=sqlite:///./partsight.db
+DATABASE_URL=sqlite:///./defex.db
 SECRET_KEY=your-secret-key-change-in-production
 CORS_ORIGINS=http://localhost:5173,http://localhost:3000
 PORT=8000
@@ -935,7 +935,7 @@ Frontend runs on: `http://localhost:5173`
 **Option 1: Heroku**
 ```bash
 heroku login
-heroku create partsight-ai
+heroku create defex-ai
 heroku buildpacks:add heroku/python
 git push heroku main
 heroku config:set DATABASE_URL=postgresql://...
@@ -969,10 +969,10 @@ gunicorn -w 4 -b 0.0.0.0:8000 main:app
 **From SQLite to PostgreSQL:**
 ```python
 # Backup SQLite
-cp partsight.db partsight_backup.db
+cp defex.db DefEx.ai_backup.db
 
 # Update .env
-DATABASE_URL=postgresql://user:pass@host:5432/partsight
+DATABASE_URL=postgresql://user:pass@host:5432/DefEx.ai
 
 # Run migrations (auto-creates schema)
 python -c "from database import init_db; init_db()"
@@ -1020,21 +1020,21 @@ Due to network access restrictions in this environment, the code needs to be pus
 ```bash
 # Option 1: Copy the generated files from outputs folder
 # Then:
-cd /path/to/partsight-ai
+cd /path/to/defex-ai
 git init
 git config user.name "Your Name"
 git config user.email "your@email.com"
 git add .
-git commit -m "Initial commit: Complete PartSight AI full-stack application"
+git commit -m "Initial commit: Complete DefEx.ai full-stack application"
 git remote add origin https://github.com/sanjaykumarskr2025-design/partvisit.git
 git branch -M main
 git push -u origin main
 
 # Option 2: Create new repo on GitHub first, then:
 git clone https://github.com/sanjaykumarskr2025-design/partvisit.git
-# Copy all files from generated partsight-ai folder
+# Copy all files from generated defex-ai folder
 git add .
-git commit -m "Initial commit: Complete PartSight AI full-stack application"
+git commit -m "Initial commit: Complete DefEx.ai full-stack application"
 git push origin main
 ```
 

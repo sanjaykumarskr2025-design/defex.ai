@@ -14,7 +14,7 @@ interface AuthContextType {
 const defaultDemoUser: User = {
   id: 'usr-sanjay',
   name: 'Sanjay Kumar',
-  email: 'sanjay.kumar@partsight.ai',
+  email: 'sanjay.kumar@defex.ai',
   role: 'operator',
 };
 
@@ -40,7 +40,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (user) {
       localStorage.setItem('user', JSON.stringify(user));
       if (!localStorage.getItem('auth_token')) {
-        localStorage.setItem('auth_token', 'demo-token-partsight-ai');
+        localStorage.setItem('auth_token', 'demo-token-defex-ai');
       }
     }
   }, [user]);

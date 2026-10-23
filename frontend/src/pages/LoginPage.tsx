@@ -57,7 +57,7 @@ export const LoginPage: React.FC = () => {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="sanjay@partsight.ai"
+                placeholder="sanjay@defex.ai"
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-3 py-2.5 text-xs font-semibold text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
               />
             </div>
@@ -125,7 +125,7 @@ export const LoginPage: React.FC = () => {
 
       {/* Footer Info */}
       <div className="text-center py-4 text-[11px] text-slate-400 font-medium">
-        PartSight AI • Industrial Quality Intelligence v1.0
+        DefEx.ai • Industrial Quality Intelligence v1.0
       </div>
     </div>
   );

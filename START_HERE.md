@@ -1,4 +1,4 @@
-# PartSight AI - Complete Application Ready for Deployment
+# DefEx.ai - Complete Application Ready for Deployment
 
 ## 🎉 PROJECT COMPLETE - OCTOBER 23, 2026
 
@@ -86,7 +86,7 @@ Git/DevOps: 2 files
 ### Step 1: Push to GitHub
 
 ```bash
-cd partsight-ai
+cd defex-ai
 git push -u origin main
 ```
 
@@ -111,7 +111,7 @@ GitHub Actions automatically:
 
 **Option A: Heroku**
 ```bash
-heroku create partsight-api
+heroku create DefEx.ai-api
 git push heroku main
 heroku config:set DATABASE_URL=postgresql://...
 ```
@@ -332,7 +332,7 @@ SQLAlchemy ORM (agnostic)
 ## 📦 File Organization
 
 ```
-partsight-ai/
+defex-ai/
 ├── .github/workflows/deploy.yml      ← Auto-deploy to GitHub Pages
 ├── backend/                          ← FastAPI application
 │   ├── main.py                       ← Entry point
@@ -490,7 +490,7 @@ partsight-ai/
 Port 8000 in use → Change PORT env var
 Port 5173 in use → Vite uses next available
 CORS errors → Check CORS_ORIGINS in .env
-Database locked → Delete partsight.db and reinit
+Database locked → Delete defex.db and reinit
 API not responding → Verify backend running
 ```
 
@@ -519,7 +519,7 @@ API not responding → Verify backend running
 ### Next Action: PUSH TO GITHUB
 
 ```bash
-cd partsight-ai
+cd defex-ai
 git push -u origin main
 ```
 

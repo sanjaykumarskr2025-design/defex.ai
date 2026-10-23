@@ -1,4 +1,4 @@
-# PartSight AI - Feature Verification & Page Navigation
+# DefEx.ai - Feature Verification & Page Navigation
 **October 23, 2026**
 
 ---

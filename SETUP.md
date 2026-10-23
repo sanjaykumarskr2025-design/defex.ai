@@ -101,7 +101,7 @@ kill -9 <PID>
 
 ### Database Lock Issues
 ```bash
-rm backend/partsight.db
+rm backend/defex.db
 python -c "from backend.database import init_db; init_db()"
 ```
 

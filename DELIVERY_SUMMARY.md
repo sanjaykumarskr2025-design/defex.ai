@@ -1,4 +1,4 @@
-# PartSight AI - Complete Delivery Summary
+# DefEx.ai - Complete Delivery Summary
 **October 23, 2026**
 
 ---
@@ -12,7 +12,7 @@ All 10 implementation phases successfully delivered. Application is production-r
 ## 📦 DELIVERABLES
 
 ### Location
-**File System Path:** `C:\Users\D E L L\AppData\Local\Claude-3p\local-agent-mode-sessions\e7da4cbb\00000000\dfb577aa\outputs\partsight-ai`
+**File System Path:** `C:\Users\D E L L\AppData\Local\Claude-3p\local-agent-mode-sessions\e7da4cbb\00000000\dfb577aa\outputs\defex-ai`
 
 **Ready to Push:** `https://github.com/sanjaykumarskr2025-design/partvisit`
 
@@ -323,7 +323,7 @@ Quick overview of what's included, how to deploy
 
 **Step 1: Push to GitHub**
 ```bash
-cd partsight-ai
+cd defex-ai
 git push -u origin main
 ```
 
@@ -389,7 +389,7 @@ git push -u origin main
 
 ```
 commit ef82037 - Add comprehensive documentation
-commit f668fe8 - Initial commit: Complete PartSight AI full-stack application
+commit f668fe8 - Initial commit: Complete DefEx.ai full-stack application
 ```
 
 **Ready to push to GitHub:** YES ✅
@@ -439,7 +439,7 @@ commit f668fe8 - Initial commit: Complete PartSight AI full-stack application
 ## 🎯 NEXT ACTIONS
 
 ### Immediate (Now)
-1. Review code in `/outputs/partsight-ai/`
+1. Review code in `/outputs/defex-ai/`
 2. Read START_HERE.md
 3. Run locally for testing
 
@@ -508,18 +508,18 @@ All documentation is included:
 
 ## 📍 LOCATION
 
-**Local Files:** `/sessions/jolly-awesome-hopper/mnt/outputs/partsight-ai/`
+**Local Files:** `/sessions/jolly-awesome-hopper/mnt/outputs/defex-ai/`
 
 **GitHub Ready:** `https://github.com/sanjaykumarskr2025-design/partvisit`
 
 **Push Command:**
 ```bash
-cd partsight-ai && git push -u origin main
+cd defex-ai && git push -u origin main
 ```
 
 ---
 
-**Application:** PartSight AI v1.0.0  
+**Application:** DefEx.ai v1.0.0  
 **Build Date:** October 23, 2026  
 **Status:** ✅ COMPLETE  
 **Ready:** YES ✅

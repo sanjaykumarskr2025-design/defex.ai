@@ -108,7 +108,7 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({ isOpen, onCl
         <div className="p-5 border-t border-slate-100 space-y-3 bg-slate-50/40">
           <div className="flex items-center gap-2 text-xs font-semibold text-slate-400 px-2">
             <div className="w-2 h-2 rounded-full bg-emerald-500" />
-            <span>PartSight AI v1.0.0</span>
+            <span>DefEx.ai v1.0.0</span>
           </div>
 
           <button

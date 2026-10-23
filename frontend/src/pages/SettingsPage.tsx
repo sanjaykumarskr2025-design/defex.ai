@@ -28,7 +28,7 @@ export const SettingsPage: React.FC = () => {
     { label: 'Inspection Rules', icon: Sliders, desc: 'Defect thresholds & confidence scoring' },
     { label: 'Notifications', icon: Bell, desc: 'SMS, webhook and email alert channels', path: '/alerts' },
     { label: 'Storage & Backup', icon: HardDrive, desc: 'Local cache, uploads and cloud retention' },
-    { label: 'About', icon: Info, desc: 'PartSight AI v1.0.0 • Production Build' },
+    { label: 'About', icon: Info, desc: 'DefEx.ai v1.0.0 • Production Build' },
   ];
 
   const handleLogout = async () => {
@@ -50,7 +50,7 @@ export const SettingsPage: React.FC = () => {
               {user?.name || 'Sanjay Kumar'}
             </h3>
             <span className="text-xs font-semibold text-slate-400 capitalize">
-              {user?.role || 'Operator'} • {user?.email || 'sanjay@partsight.ai'}
+              {user?.role || 'Operator'} • {user?.email || 'sanjay@defex.ai'}
             </span>
           </div>
         </div>

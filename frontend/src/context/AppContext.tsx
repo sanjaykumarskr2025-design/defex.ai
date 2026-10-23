@@ -72,32 +72,32 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [machines, setMachines] = useState<Machine[]>(() => {
-    const saved = localStorage.getItem('partsight_machines');
+    const saved = localStorage.getItem('defex_machines');
     return saved ? JSON.parse(saved) : initialMachines;
   });
 
   const [inspections, setInspections] = useState<InspectionItem[]>(() => {
-    const saved = localStorage.getItem('partsight_inspections');
+    const saved = localStorage.getItem('defex_inspections');
     return saved ? JSON.parse(saved) : initialInspections;
   });
 
   const [alerts, setAlerts] = useState<AlertItem[]>(() => {
-    const saved = localStorage.getItem('partsight_alerts');
+    const saved = localStorage.getItem('defex_alerts');
     return saved ? JSON.parse(saved) : initialAlerts;
   });
 
   const [viewMode, setViewMode] = useState<'responsive' | 'mobile-mockup'>('responsive');
 
   useEffect(() => {
-    localStorage.setItem('partsight_machines', JSON.stringify(machines));
+    localStorage.setItem('defex_machines', JSON.stringify(machines));
   }, [machines]);
 
   useEffect(() => {
-    localStorage.setItem('partsight_inspections', JSON.stringify(inspections));
+    localStorage.setItem('defex_inspections', JSON.stringify(inspections));
   }, [inspections]);
 
   useEffect(() => {
-    localStorage.setItem('partsight_alerts', JSON.stringify(alerts));
+    localStorage.setItem('defex_alerts', JSON.stringify(alerts));
   }, [alerts]);
 
   const addInspection = (item: InspectionItem) => {

@@ -105,7 +105,7 @@ defex-ai/
 ## Verification Before Push
 
 ```bash
-cd partsight-ai
+cd defex-ai
 
 # Check git status
 git status
@@ -351,9 +351,9 @@ The application is **100% production-ready**. After pushing to GitHub:
 3. **Database**: Use PostgreSQL on hosting platform
 4. **Monitoring**: Use health endpoints
 
-Your complete PartSight AI platform will be live!
+Your complete DefEx.ai platform will be live!
 
 ---
 
-**Repository is ready at:** `/sessions/jolly-awesome-hopper/mnt/outputs/partsight-ai/`  
+**Repository is ready at:** `/sessions/jolly-awesome-hopper/mnt/outputs/defex-ai/`  
 **Status:** ✅ ALL FILES COMMITTED AND READY TO PUSH
