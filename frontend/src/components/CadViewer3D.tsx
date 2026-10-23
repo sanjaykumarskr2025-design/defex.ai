@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { RotateCw, Maximize2, Layers, Compass, Eye } from 'lucide-react';
+import { RotateCw, Maximize2, Layers, Compass } from 'lucide-react';
 
 interface CadViewer3DProps {
   partType?: string;
@@ -38,11 +38,9 @@ export const CadViewer3D: React.FC<CadViewer3DProps> = ({
     const thickness = 38;
 
     const vertices: { x: number; y: number; z: number }[] = [];
-    const faces: number[][] = [];
 
     // Create front and back rings with teeth
     for (const z of [-thickness / 2, thickness / 2]) {
-      const zOffset = vertices.length;
       for (let i = 0; i < teeth * 2; i++) {
         const theta = (i * Math.PI) / teeth;
         const r = i % 2 === 0 ? outerR : innerR;

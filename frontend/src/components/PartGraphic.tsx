@@ -14,7 +14,6 @@ export const PartGraphic: React.FC<PartGraphicProps> = ({
   showReticle = false,
   isScanning = false,
   className = '',
-  size = 'md',
   imageSrc = null,
 }) => {
   return (

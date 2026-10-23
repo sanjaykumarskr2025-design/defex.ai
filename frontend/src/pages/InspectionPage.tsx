@@ -3,20 +3,16 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Camera,
   Upload,
-  ChevronRight,
   CheckCircle2,
   RefreshCw,
   Sparkles,
   SwitchCamera,
-  AlertCircle,
-  VideoOff,
   Volume2,
   VolumeX,
   Award,
-  FileCheck2,
 } from 'lucide-react';
 import { PartGraphic } from '../components/PartGraphic';
-import { useAppState, InspectionItem } from '../context/AppContext';
+import { useAppState } from '../context/AppContext';
 import { audioEngine } from '../utils/audioEngine';
 import { ClientVisionEngine, VisionAnalysisResult } from '../utils/visionEngine';
 import { QualityCertificateModal } from '../components/QualityCertificateModal';
@@ -529,7 +525,7 @@ export const InspectionPage: React.FC = () => {
       {step === 2 && (
         <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-xs text-center space-y-6 py-12">
           <div className="relative w-48 h-48 mx-auto rounded-2xl overflow-hidden bg-slate-900 border border-slate-800 shadow-xl">
-            <PartGraphic className="w-full h-full" isScanning={true} imageSrc={capturedImage} />
+            <PartGraphic className="w-full h-full" isScanning={isScanning} imageSrc={capturedImage} />
           </div>
 
           <div className="space-y-2">

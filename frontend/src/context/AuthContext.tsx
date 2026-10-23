@@ -61,6 +61,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const login = async (email: string, password: string) => {
+    setIsLoading(true);
     try {
       const { access_token, user } = await authAPI.login(email, password);
       localStorage.setItem('auth_token', access_token);
@@ -77,6 +78,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       localStorage.setItem('auth_token', 'demo-token');
       localStorage.setItem('user', JSON.stringify(mockUser));
       setUser(mockUser);
+    } finally {
+      setIsLoading(false);
     }
   };
 

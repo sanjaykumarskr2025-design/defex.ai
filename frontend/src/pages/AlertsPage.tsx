@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AlertTriangle, AlertCircle, Info, Check, Filter, Trash2, BellRing, Sparkles, CheckCheck } from 'lucide-react';
+import { AlertTriangle, AlertCircle, Info, Check, Trash2, BellRing, CheckCheck, CheckCircle2 } from 'lucide-react';
 import { useAppState } from '../context/AppContext';
 
 export const AlertsPage: React.FC = () => {

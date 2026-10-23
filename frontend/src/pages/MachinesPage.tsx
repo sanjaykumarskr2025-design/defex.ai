@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Cpu, ChevronRight, Activity, Power, X, Trash2, Search, CheckCircle2, AlertTriangle, Wrench } from 'lucide-react';
+import { Plus, Cpu, Power, X, Trash2, Search, CheckCircle2 } from 'lucide-react';
 import { useAppState } from '../context/AppContext';
 
 export const MachinesPage: React.FC = () => {

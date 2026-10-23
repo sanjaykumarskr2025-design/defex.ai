@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Filter, ChevronRight, CheckCircle2, XCircle, AlertTriangle, Search, Trash2, Check, Award } from 'lucide-react';
+import { ChevronRight, CheckCircle2, Search, Trash2, Check, Award } from 'lucide-react';
 import { useAppState, InspectionItem } from '../context/AppContext';
 import { PartGraphic } from '../components/PartGraphic';
 import { QualityCertificateModal } from '../components/QualityCertificateModal';

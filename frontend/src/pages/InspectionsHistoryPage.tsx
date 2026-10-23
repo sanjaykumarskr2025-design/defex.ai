@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { inspectionAPI } from '../api';
-import { AlertTriangle, Eye } from 'lucide-react';
+
 
 export const InspectionsHistoryPage = () => {
   const [inspections, setInspections] = useState<any[]>([]);

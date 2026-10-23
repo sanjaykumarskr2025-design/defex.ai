@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Check, Edit3, ShieldCheck, Layers, Ruler, Plus, X, Save, Sparkles } from 'lucide-react';
-import { PartGraphic } from '../components/PartGraphic';
+import { Check, Edit3, X, Save, Sparkles } from 'lucide-react';
 import { CadViewer3D } from '../components/CadViewer3D';
 import { useAppState, PartProfile } from '../context/AppContext';
 

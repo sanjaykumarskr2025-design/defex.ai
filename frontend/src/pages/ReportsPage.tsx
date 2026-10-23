@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BarChart3, TrendingUp, AlertTriangle, CheckCircle2, Calendar, Download, Printer, Sparkles } from 'lucide-react';
+import { Download, Printer, Sparkles } from 'lucide-react';
 import { useAppState } from '../context/AppContext';
 
 export const ReportsPage: React.FC = () => {

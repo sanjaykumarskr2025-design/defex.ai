@@ -9,9 +9,6 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   Camera,
-  Play,
-  Sliders,
-  ChevronRight,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useAppState } from '../context/AppContext';

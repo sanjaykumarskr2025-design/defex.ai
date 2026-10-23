@@ -16,7 +16,6 @@ import {
   RotateCcw,
   Plus,
   Trash2,
-  Shield,
   Save,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
