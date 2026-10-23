@@ -49,7 +49,7 @@ async def get_alert(
         raise HTTPException(status_code=404, detail="Alert not found")
     return AlertSchema.from_orm(alert)
 
-@router.post("{alert_id}/acknowledge")
+@router.post("/{alert_id}/acknowledge")
 async def acknowledge_alert(
     alert_id: str,
     current_user: User = Depends(get_current_user),
