@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { HashRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { HashRouter as Router, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { AppStateProvider } from './context/AppContext';
 
@@ -20,10 +20,35 @@ import { LoginPage } from './pages/LoginPage';
 
 function AppLayout() {
   const location = useLocation();
+  const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const isLoginPage = location.pathname === '/login' || location.pathname === '/register';
+  const isMenuRoute = location.pathname === '/menu';
+
+  // Open drawer if on /menu
+  useEffect(() => {
+    if (isMenuRoute) {
+      setIsDrawerOpen(true);
+    }
+  }, [isMenuRoute]);
+
+  const handleToggleDrawer = () => {
+    if (isDrawerOpen) {
+      setIsDrawerOpen(false);
+      if (isMenuRoute) navigate('/');
+    } else {
+      setIsDrawerOpen(true);
+    }
+  };
+
+  const handleCloseDrawer = () => {
+    setIsDrawerOpen(false);
+    if (isMenuRoute) {
+      navigate('/');
+    }
+  };
 
   // Get screen titles and back button configurations
   const getPageConfig = () => {
@@ -42,6 +67,8 @@ function AppLayout() {
         return { title: 'Settings', showBack: true, backTo: '/' };
       case '/reports':
         return { title: 'Reports', showBack: true, backTo: '/' };
+      case '/menu':
+        return { title: 'Menu', showBack: true, backTo: '/' };
       default:
         return { title: undefined, showBack: false };
     }
@@ -49,48 +76,43 @@ function AppLayout() {
 
   const { title, showBack, backTo } = getPageConfig();
 
-  // If on login page, render login experience
-  if (isLoginPage) {
-    return (
-      <div className="min-h-screen bg-slate-100 flex flex-col">
-        <ScreenSwitcherBar onToggleDrawer={() => setIsDrawerOpen(true)} />
+  return (
+    <div className="min-h-screen bg-slate-100/90 text-slate-900 flex flex-col">
+      {/* Global Screen Switcher Banner */}
+      <ScreenSwitcherBar onToggleDrawer={handleToggleDrawer} />
+
+      {/* Global Mobile Menu Drawer - Works from ANY screen */}
+      <MobileMenuDrawer isOpen={isDrawerOpen} onClose={handleCloseDrawer} />
+
+      {/* Main Content Area */}
+      {isLoginPage ? (
         <div className="flex-1 flex items-center justify-center p-4">
           <LoginPage />
         </div>
-      </div>
-    );
-  }
+      ) : !isAuthenticated ? (
+        <Navigate to="/login" replace />
+      ) : (
+        <div className="w-full max-w-5xl mx-auto shadow-xl min-h-screen bg-slate-50 flex flex-col font-sans">
+          <TopAppBar title={title} showBack={showBack} backTo={backTo} />
 
-  // If not authenticated, redirect to login
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
+          <main className="flex-1 w-full mx-auto px-4 pt-3">
+            <Routes>
+              <Route path="/" element={<DashboardPage />} />
+              <Route path="/menu" element={<DashboardPage />} />
+              <Route path="/inspection" element={<InspectionPage />} />
+              <Route path="/queue" element={<ReviewQueuePage />} />
+              <Route path="/machines" element={<MachinesPage />} />
+              <Route path="/part-details" element={<PartDetailsPage />} />
+              <Route path="/alerts" element={<AlertsPage />} />
+              <Route path="/settings" element={<SettingsPage />} />
+              <Route path="/reports" element={<ReportsPage />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </main>
 
-  return (
-    <div className="min-h-screen bg-slate-100/90 text-slate-900">
-      <ScreenSwitcherBar onToggleDrawer={() => setIsDrawerOpen(true)} />
-
-      <div className="w-full max-w-5xl mx-auto shadow-xl min-h-screen bg-slate-50 flex flex-col font-sans">
-        <TopAppBar title={title} showBack={showBack} backTo={backTo} />
-
-        <main className="flex-1 w-full mx-auto px-4 pt-3">
-          <Routes>
-            <Route path="/" element={<DashboardPage />} />
-            <Route path="/inspection" element={<InspectionPage />} />
-            <Route path="/queue" element={<ReviewQueuePage />} />
-            <Route path="/machines" element={<MachinesPage />} />
-            <Route path="/part-details" element={<PartDetailsPage />} />
-            <Route path="/alerts" element={<AlertsPage />} />
-            <Route path="/settings" element={<SettingsPage />} />
-            <Route path="/reports" element={<ReportsPage />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </main>
-
-        <BottomNav onOpenMore={() => setIsDrawerOpen(true)} />
-
-        <MobileMenuDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} />
-      </div>
+          <BottomNav onOpenMore={handleToggleDrawer} />
+        </div>
+      )}
     </div>
   );
 }

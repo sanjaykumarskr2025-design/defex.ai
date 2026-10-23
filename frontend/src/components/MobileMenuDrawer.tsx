@@ -41,15 +41,18 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({ isOpen, onCl
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end">
+    <div className="fixed inset-0 z-[9999] flex justify-end">
       {/* Backdrop */}
-      <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onClick={onClose} />
+      <div
+        className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity cursor-pointer"
+        onClick={onClose}
+      />
 
       {/* Drawer content */}
       <div className="relative w-full max-w-xs bg-white h-full shadow-2xl flex flex-col justify-between z-10 animate-in slide-in-from-right duration-200">
         <div>
           {/* Header */}
-          <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+          <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
             <div className="flex items-center gap-3">
               <div className="w-11 h-11 rounded-full bg-blue-600 text-white font-bold text-lg flex items-center justify-center shadow-md shadow-blue-500/20">
                 {user?.name?.charAt(0) || 'S'}
@@ -58,7 +61,7 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({ isOpen, onCl
                 <h3 className="font-bold text-slate-900 text-base leading-tight">
                   {user?.name || 'Sanjay Kumar'}
                 </h3>
-                <span className="text-xs font-medium text-slate-500 capitalize">
+                <span className="text-xs font-semibold text-slate-400 capitalize">
                   {user?.role || 'Operator'}
                 </span>
               </div>
@@ -66,9 +69,10 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({ isOpen, onCl
 
             <button
               onClick={onClose}
-              className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+              className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+              title="Close menu"
             >
-              <X className="w-5 h-5" />
+              <X className="w-5 h-5 stroke-[2.5]" />
             </button>
           </div>
 
@@ -82,9 +86,9 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({ isOpen, onCl
                 <button
                   key={item.label}
                   onClick={() => handleNavigate(item.path)}
-                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold transition-all ${
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs md:text-sm font-semibold transition-all ${
                     isActive
-                      ? 'bg-blue-50 text-blue-700 shadow-sm'
+                      ? 'bg-blue-50 text-blue-700 shadow-xs'
                       : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900'
                   }`}
                 >
@@ -113,9 +117,9 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({ isOpen, onCl
 
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-red-600 hover:bg-red-50 transition-colors"
+            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs md:text-sm font-semibold text-red-600 hover:bg-red-50 transition-colors"
           >
-            <LogOut className="w-5 h-5 text-red-500" />
+            <LogOut className="w-4 h-4 text-red-500" />
             <span>Logout</span>
           </button>
         </div>

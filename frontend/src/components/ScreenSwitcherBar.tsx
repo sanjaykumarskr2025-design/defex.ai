@@ -19,11 +19,11 @@ export const ScreenSwitcherBar: React.FC<ScreenSwitcherBarProps> = ({ onToggleDr
     { num: '7', name: 'Alerts', path: '/alerts' },
     { num: '8', name: 'Settings', path: '/settings' },
     { num: '9', name: 'Login', path: '/login' },
-    { num: '10', name: 'Mobile Menu', isAction: true },
+    { num: '10', name: 'Mobile Menu', path: '/menu', isAction: true },
   ];
 
   return (
-    <div className="bg-white border-b border-slate-200 px-3 md:px-4 py-2 sticky top-0 z-50 shadow-xs">
+    <div className="bg-white border-b border-slate-200 px-3 md:px-4 py-2 sticky top-0 z-40 shadow-xs">
       <div className="flex items-center justify-between max-w-6xl mx-auto gap-2 overflow-x-auto py-0.5">
         <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mr-1 shrink-0">
           Screens:
@@ -31,7 +31,9 @@ export const ScreenSwitcherBar: React.FC<ScreenSwitcherBarProps> = ({ onToggleDr
 
         <div className="flex items-center gap-1.5 shrink-0">
           {screens.map((s) => {
-            const isCurrent = s.path && location.pathname === s.path.split('?')[0];
+            const isCurrent =
+              location.pathname === s.path ||
+              (s.path.includes('?') && location.search.includes('result=true'));
 
             return (
               <button
@@ -39,7 +41,7 @@ export const ScreenSwitcherBar: React.FC<ScreenSwitcherBarProps> = ({ onToggleDr
                 onClick={() => {
                   if (s.isAction) {
                     onToggleDrawer();
-                  } else if (s.path) {
+                  } else {
                     navigate(s.path);
                   }
                 }}
