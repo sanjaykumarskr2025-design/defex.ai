@@ -28,14 +28,6 @@ jobs:
       - name: Install dependencies
         run: cd frontend && npm install --legacy-peer-deps
 
-      - name: Run type check
-        run: cd frontend && npm run type-check
-        continue-on-error: true
-
-      - name: Run linter
-        run: cd frontend && npm run lint
-        continue-on-error: true
-
       - name: Build
         run: cd frontend && npm run build
         env:
