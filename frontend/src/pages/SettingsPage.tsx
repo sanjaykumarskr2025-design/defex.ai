@@ -10,16 +10,12 @@ import {
   Info,
   ChevronRight,
   LogOut,
-  Smartphone,
-  Monitor,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { useAppState } from '../context/AppContext';
 
 export const SettingsPage: React.FC = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
-  const { viewMode, setViewMode } = useAppState();
 
   const menuSections = [
     { label: 'User Management', icon: Users, desc: 'Manage access roles and operators' },
@@ -56,36 +52,6 @@ export const SettingsPage: React.FC = () => {
         </div>
 
         <ChevronRight className="w-5 h-5 text-slate-300" />
-      </div>
-
-      {/* Desktop/Mobile Frame View Switcher (Handy on Settings) */}
-      <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-xs space-y-2">
-        <h4 className="font-bold text-slate-900 text-xs uppercase tracking-wider">Preview Layout Mode</h4>
-        <div className="grid grid-cols-2 gap-2 pt-1">
-          <button
-            onClick={() => setViewMode('responsive')}
-            className={`flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-xs font-bold transition-all ${
-              viewMode === 'responsive'
-                ? 'bg-blue-600 text-white shadow-sm'
-                : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
-            }`}
-          >
-            <Monitor className="w-4 h-4" />
-            <span>Responsive View</span>
-          </button>
-
-          <button
-            onClick={() => setViewMode('mobile-mockup')}
-            className={`flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-xs font-bold transition-all ${
-              viewMode === 'mobile-mockup'
-                ? 'bg-blue-600 text-white shadow-sm'
-                : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
-            }`}
-          >
-            <Smartphone className="w-4 h-4" />
-            <span>Phone Mockup</span>
-          </button>
-        </div>
       </div>
 
       {/* Settings Menu List */}

@@ -40,8 +40,6 @@ interface AppContextType {
   toggleMachineStatus: (id: string) => void;
   addMachine: (name: string, type: string) => void;
   acknowledgeAlert: (id: string) => void;
-  viewMode: 'responsive' | 'mobile-mockup';
-  setViewMode: (mode: 'responsive' | 'mobile-mockup') => void;
 }
 
 const initialMachines: Machine[] = [
@@ -85,8 +83,6 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const saved = localStorage.getItem('defex_alerts');
     return saved ? JSON.parse(saved) : initialAlerts;
   });
-
-  const [viewMode, setViewMode] = useState<'responsive' | 'mobile-mockup'>('responsive');
 
   useEffect(() => {
     localStorage.setItem('defex_machines', JSON.stringify(machines));
@@ -140,8 +136,6 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         toggleMachineStatus,
         addMachine,
         acknowledgeAlert,
-        viewMode,
-        setViewMode,
       }}
     >
       {children}

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Bell, Smartphone, Monitor } from 'lucide-react';
+import { ArrowLeft, Bell } from 'lucide-react';
 import { Logo } from './Logo';
 import { useAppState } from '../context/AppContext';
 
@@ -13,7 +13,7 @@ interface TopAppBarProps {
 
 export const TopAppBar: React.FC<TopAppBarProps> = ({ title, showBack = false, backTo = '/', rightAction }) => {
   const navigate = useNavigate();
-  const { alerts, viewMode, setViewMode } = useAppState();
+  const { alerts } = useAppState();
 
   const unreadCount = alerts.filter((a) => !a.acknowledged).length;
 
@@ -38,30 +38,6 @@ export const TopAppBar: React.FC<TopAppBarProps> = ({ title, showBack = false, b
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Layout Switcher */}
-          <div className="flex items-center bg-slate-100 p-0.5 rounded-lg mr-1 text-xs font-semibold text-slate-600 border border-slate-200/50">
-            <button
-              onClick={() => setViewMode('responsive')}
-              className={`flex items-center gap-1 px-2 py-1 rounded-md transition-all ${
-                viewMode === 'responsive' ? 'bg-white shadow-xs text-blue-600' : 'hover:text-slate-900'
-              }`}
-              title="Full responsive view"
-            >
-              <Monitor className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Full</span>
-            </button>
-            <button
-              onClick={() => setViewMode('mobile-mockup')}
-              className={`flex items-center gap-1 px-2 py-1 rounded-md transition-all ${
-                viewMode === 'mobile-mockup' ? 'bg-white shadow-xs text-blue-600' : 'hover:text-slate-900'
-              }`}
-              title="Mobile device frame view (as in mockup)"
-            >
-              <Smartphone className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Mobile Mockup</span>
-            </button>
-          </div>
-
           {rightAction ? (
             rightAction
           ) : (

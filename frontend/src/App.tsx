@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import { HashRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import { AppStateProvider, useAppState } from './context/AppContext';
+import { AppStateProvider } from './context/AppContext';
 
 import { TopAppBar } from './components/TopAppBar';
 import { BottomNav } from './components/BottomNav';
 import { MobileMenuDrawer } from './components/MobileMenuDrawer';
-import { MobileFrame } from './components/MobileFrame';
 import { ScreenSwitcherBar } from './components/ScreenSwitcherBar';
 
 import { DashboardPage } from './pages/DashboardPage';
@@ -22,7 +21,6 @@ import { LoginPage } from './pages/LoginPage';
 function AppLayout() {
   const location = useLocation();
   const { isAuthenticated } = useAuth();
-  const { viewMode } = useAppState();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const isLoginPage = location.pathname === '/login';
@@ -51,7 +49,7 @@ function AppLayout() {
 
   const { title, showBack, backTo } = getPageConfig();
 
-  // If on login page, render full login experience
+  // If on login page, render login experience
   if (isLoginPage) {
     return (
       <div className="min-h-screen bg-slate-100 flex flex-col">
@@ -68,43 +66,31 @@ function AppLayout() {
     return <Navigate to="/login" replace />;
   }
 
-  const content = (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans">
-      <TopAppBar title={title} showBack={showBack} backTo={backTo} />
-
-      <main className={`flex-1 w-full mx-auto px-4 pt-3 ${viewMode === 'mobile-mockup' ? 'max-w-md' : 'max-w-5xl'}`}>
-        <Routes>
-          <Route path="/" element={<DashboardPage />} />
-          <Route path="/inspection" element={<InspectionPage />} />
-          <Route path="/queue" element={<ReviewQueuePage />} />
-          <Route path="/machines" element={<MachinesPage />} />
-          <Route path="/part-details" element={<PartDetailsPage />} />
-          <Route path="/alerts" element={<AlertsPage />} />
-          <Route path="/settings" element={<SettingsPage />} />
-          <Route path="/reports" element={<ReportsPage />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </main>
-
-      <BottomNav onOpenMore={() => setIsDrawerOpen(true)} />
-
-      <MobileMenuDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} />
-    </div>
-  );
-
   return (
     <div className="min-h-screen bg-slate-100/90 text-slate-900">
-      {/* Quick Screen Switcher Banner with Full and Mobile Mockup toggle */}
       <ScreenSwitcherBar onToggleDrawer={() => setIsDrawerOpen(true)} />
 
-      {/* Render View mode */}
-      {viewMode === 'mobile-mockup' ? (
-        <MobileFrame>{content}</MobileFrame>
-      ) : (
-        <div className="w-full max-w-5xl mx-auto shadow-xl min-h-screen bg-slate-50">
-          {content}
-        </div>
-      )}
+      <div className="w-full max-w-5xl mx-auto shadow-xl min-h-screen bg-slate-50 flex flex-col font-sans">
+        <TopAppBar title={title} showBack={showBack} backTo={backTo} />
+
+        <main className="flex-1 w-full mx-auto px-4 pt-3">
+          <Routes>
+            <Route path="/" element={<DashboardPage />} />
+            <Route path="/inspection" element={<InspectionPage />} />
+            <Route path="/queue" element={<ReviewQueuePage />} />
+            <Route path="/machines" element={<MachinesPage />} />
+            <Route path="/part-details" element={<PartDetailsPage />} />
+            <Route path="/alerts" element={<AlertsPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/reports" element={<ReportsPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </main>
+
+        <BottomNav onOpenMore={() => setIsDrawerOpen(true)} />
+
+        <MobileMenuDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} />
+      </div>
     </div>
   );
 }
