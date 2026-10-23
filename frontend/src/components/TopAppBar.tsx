@@ -38,8 +38,8 @@ export const TopAppBar: React.FC<TopAppBarProps> = ({ title, showBack = false, b
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Desktop Layout Switcher */}
-          <div className="hidden lg:flex items-center bg-slate-100 p-0.5 rounded-lg mr-2 text-xs font-semibold text-slate-600">
+          {/* Layout Switcher */}
+          <div className="flex items-center bg-slate-100 p-0.5 rounded-lg mr-1 text-xs font-semibold text-slate-600 border border-slate-200/50">
             <button
               onClick={() => setViewMode('responsive')}
               className={`flex items-center gap-1 px-2 py-1 rounded-md transition-all ${
@@ -48,7 +48,7 @@ export const TopAppBar: React.FC<TopAppBarProps> = ({ title, showBack = false, b
               title="Full responsive view"
             >
               <Monitor className="w-3.5 h-3.5" />
-              <span>Full</span>
+              <span className="hidden sm:inline">Full</span>
             </button>
             <button
               onClick={() => setViewMode('mobile-mockup')}
@@ -58,7 +58,7 @@ export const TopAppBar: React.FC<TopAppBarProps> = ({ title, showBack = false, b
               title="Mobile device frame view (as in mockup)"
             >
               <Smartphone className="w-3.5 h-3.5" />
-              <span>Mobile Mockup</span>
+              <span className="hidden sm:inline">Mobile Mockup</span>
             </button>
           </div>
 

@@ -72,7 +72,7 @@ function AppLayout() {
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans">
       <TopAppBar title={title} showBack={showBack} backTo={backTo} />
 
-      <main className="flex-1 max-w-md md:max-w-xl lg:max-w-2xl mx-auto w-full px-4 pt-3">
+      <main className={`flex-1 w-full mx-auto px-4 pt-3 ${viewMode === 'mobile-mockup' ? 'max-w-md' : 'max-w-5xl'}`}>
         <Routes>
           <Route path="/" element={<DashboardPage />} />
           <Route path="/inspection" element={<InspectionPage />} />
@@ -94,14 +94,14 @@ function AppLayout() {
 
   return (
     <div className="min-h-screen bg-slate-100/90 text-slate-900">
-      {/* Quick Screen Switcher Banner */}
+      {/* Quick Screen Switcher Banner with Full and Mobile Mockup toggle */}
       <ScreenSwitcherBar onToggleDrawer={() => setIsDrawerOpen(true)} />
 
       {/* Render View mode */}
       {viewMode === 'mobile-mockup' ? (
         <MobileFrame>{content}</MobileFrame>
       ) : (
-        <div className="max-w-2xl mx-auto shadow-xl min-h-screen bg-slate-50">
+        <div className="w-full max-w-5xl mx-auto shadow-xl min-h-screen bg-slate-50">
           {content}
         </div>
       )}
