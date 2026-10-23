@@ -1,0 +1,19 @@
+{
+  "name": "DefEx.ai - Industrial Quality Vision",
+  "short_name": "DefEx.ai",
+  "description": "Industrial AI defect detection & vision quality intelligence platform",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0B47B8",
+  "theme_color": "#0B47B8",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
