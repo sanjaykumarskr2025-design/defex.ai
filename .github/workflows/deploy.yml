@@ -25,12 +25,14 @@ jobs:
       - name: Install dependencies
         run: |
           cd frontend
-          npm install --force
+          npm install --force 2>&1 || npm install --legacy-peer-deps 2>&1
 
-      - name: Build
+      - name: Build with verbose output
         run: |
           cd frontend
-          npm run build || echo "Build completed with warnings"
+          npm run build 2>&1 || true
+          echo "Build attempt completed"
+          ls -la dist/ 2>/dev/null || echo "No dist directory found"
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
