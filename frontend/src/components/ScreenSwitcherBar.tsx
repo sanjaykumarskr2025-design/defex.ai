@@ -1,5 +1,7 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { Monitor, Smartphone } from 'lucide-react';
+import { useAppState } from '../context/AppContext';
 
 interface ScreenSwitcherBarProps {
   onToggleDrawer: () => void;
@@ -8,6 +10,7 @@ interface ScreenSwitcherBarProps {
 export const ScreenSwitcherBar: React.FC<ScreenSwitcherBarProps> = ({ onToggleDrawer }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { deviceView, setDeviceView } = useAppState();
 
   const screens = [
     { num: '1', name: 'Dashboard', path: '/' },
@@ -24,12 +27,40 @@ export const ScreenSwitcherBar: React.FC<ScreenSwitcherBarProps> = ({ onToggleDr
 
   return (
     <div className="bg-white border-b border-slate-200 px-3 md:px-4 py-2 sticky top-0 z-40 shadow-xs">
-      <div className="flex items-center justify-between max-w-6xl mx-auto gap-2 overflow-x-auto py-0.5">
-        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mr-1 shrink-0">
-          Screens:
-        </span>
+      <div className="flex items-center justify-between max-w-6xl mx-auto gap-3 flex-wrap">
+        {/* Web View vs Mobile View Switcher */}
+        <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200/80 shadow-2xs">
+          <button
+            onClick={() => setDeviceView('web')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+              deviceView === 'web'
+                ? 'bg-blue-600 text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+            }`}
+          >
+            <Monitor className="w-3.5 h-3.5" />
+            <span>Web View</span>
+          </button>
 
-        <div className="flex items-center gap-1.5 shrink-0">
+          <button
+            onClick={() => setDeviceView('mobile')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+              deviceView === 'mobile'
+                ? 'bg-blue-600 text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+            }`}
+          >
+            <Smartphone className="w-3.5 h-3.5" />
+            <span>Mobile View</span>
+          </button>
+        </div>
+
+        {/* Screens Section */}
+        <div className="flex items-center gap-1.5 overflow-x-auto min-w-max py-0.5">
+          <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mr-1 hidden sm:inline">
+            Screens:
+          </span>
+
           {screens.map((s) => {
             const isCurrent =
               location.pathname === s.path ||

@@ -40,6 +40,8 @@ interface AppContextType {
   toggleMachineStatus: (id: string) => void;
   addMachine: (name: string, type: string) => void;
   acknowledgeAlert: (id: string) => void;
+  deviceView: 'web' | 'mobile';
+  setDeviceView: (view: 'web' | 'mobile') => void;
 }
 
 const initialMachines: Machine[] = [
@@ -83,6 +85,8 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const saved = localStorage.getItem('defex_alerts');
     return saved ? JSON.parse(saved) : initialAlerts;
   });
+
+  const [deviceView, setDeviceView] = useState<'web' | 'mobile'>('web');
 
   useEffect(() => {
     localStorage.setItem('defex_machines', JSON.stringify(machines));
@@ -136,6 +140,8 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         toggleMachineStatus,
         addMachine,
         acknowledgeAlert,
+        deviceView,
+        setDeviceView,
       }}
     >
       {children}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { HashRouter as Router, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import { AppStateProvider } from './context/AppContext';
+import { AppStateProvider, useAppState } from './context/AppContext';
 
 import { TopAppBar } from './components/TopAppBar';
 import { BottomNav } from './components/BottomNav';
@@ -22,6 +22,7 @@ function AppLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
+  const { deviceView } = useAppState();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const isLoginPage = location.pathname === '/login' || location.pathname === '/register';
@@ -78,7 +79,7 @@ function AppLayout() {
 
   return (
     <div className="min-h-screen bg-slate-100/90 text-slate-900 flex flex-col">
-      {/* Global Screen Switcher Banner */}
+      {/* Global Screen Switcher Banner with Web View and Mobile View */}
       <ScreenSwitcherBar onToggleDrawer={handleToggleDrawer} />
 
       {/* Global Mobile Menu Drawer - Works from ANY screen */}
@@ -92,7 +93,13 @@ function AppLayout() {
       ) : !isAuthenticated ? (
         <Navigate to="/login" replace />
       ) : (
-        <div className="w-full max-w-5xl mx-auto shadow-xl min-h-screen bg-slate-50 flex flex-col font-sans">
+        <div
+          className={`w-full mx-auto shadow-xl min-h-screen bg-slate-50 flex flex-col font-sans transition-all duration-200 ${
+            deviceView === 'mobile'
+              ? 'max-w-[420px] my-4 rounded-[28px] border border-slate-200/90 shadow-2xl overflow-hidden'
+              : 'max-w-5xl'
+          }`}
+        >
           <TopAppBar title={title} showBack={showBack} backTo={backTo} />
 
           <main className="flex-1 w-full mx-auto px-4 pt-3">
