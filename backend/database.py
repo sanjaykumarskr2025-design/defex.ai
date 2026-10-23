@@ -5,7 +5,7 @@ from datetime import datetime
 import uuid
 import os
 
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./partsight.db")
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./defex.db")
 
 if DATABASE_URL.startswith("sqlite"):
     engine = create_engine(

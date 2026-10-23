@@ -49,7 +49,7 @@ export const RegisterPage = () => {
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-xl p-8">
-          <h1 className="text-3xl font-bold text-cyan-500 mb-2 text-center">PartSight AI</h1>
+          <h1 className="text-3xl font-bold text-cyan-500 mb-2 text-center">DefEx.ai</h1>
           <p className="text-gray-400 text-center mb-8">Create Your Account</p>
 
           {error && (

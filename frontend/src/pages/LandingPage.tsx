@@ -30,10 +30,10 @@ export const LandingPage = () => {
       <div className="max-w-7xl mx-auto px-4 py-20">
         <div className="text-center mb-20">
           <h2 className="text-5xl md:text-6xl font-bold text-white mb-6">
-            AI-Powered Industrial <span className="text-cyan-500">Part Inspection</span>
+            AI-Powered <span className="text-cyan-500">Defect Detection</span>
           </h2>
           <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-            Detect defects, predict maintenance needs, and maximize uptime with cutting-edge computer vision technology.
+            Automatically detect defects, predict maintenance needs, and maximize uptime with cutting-edge computer vision technology.
           </p>
           <button
             onClick={() => navigate('/register')}
@@ -47,20 +47,20 @@ export const LandingPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-20">
           {[
             {
-              title: 'Real-Time Detection',
-              desc: 'Instantly identify defects with AI-powered computer vision',
+              title: 'Instant Defect Detection',
+              desc: 'Automatically identify defects with AI-powered computer vision',
             },
             {
               title: 'Predictive Maintenance',
-              desc: 'Reduce downtime with predictive maintenance alerts',
+              desc: 'Prevent failures with predictive maintenance alerts',
             },
             {
-              title: 'Comprehensive Reports',
-              desc: 'Generate detailed inspection reports and analytics',
+              title: 'Detailed Analytics',
+              desc: 'Generate comprehensive inspection reports and trends',
             },
             {
-              title: 'Team Collaboration',
-              desc: 'Manage machines and inspections across your team',
+              title: 'Team Management',
+              desc: 'Collaborate across your organization seamlessly',
             },
           ].map((feature, idx) => (
             <div key={idx} className="bg-gray-800 border border-gray-700 rounded-lg p-6">
@@ -73,7 +73,7 @@ export const LandingPage = () => {
         {/* CTA */}
         <div className="bg-gray-800 border border-gray-700 rounded-lg p-12 text-center">
           <h3 className="text-3xl font-bold text-white mb-4">Ready to Optimize Your Operations?</h3>
-          <p className="text-gray-300 mb-6">Join thousands of industrial teams using PartSight AI</p>
+          <p className="text-gray-300 mb-6">Join thousands of organizations using DefEx.ai</p>
           <button
             onClick={() => navigate('/register')}
             className="bg-cyan-600 hover:bg-cyan-700 text-white px-8 py-3 rounded-lg font-medium"

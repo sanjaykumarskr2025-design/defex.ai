@@ -1,11 +1,11 @@
-# PartSight AI - Development Setup Guide
+# DefEx.ai - Development Setup Guide
 
 ## Quick Start
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/sanjaykumarskr2025-design/partvisit.git
-cd partvisit
+git clone https://github.com/sanjaykumarskr2025-design/defex-ai.git
+cd defex-ai
 ```
 
 ### 2. Backend Setup (Terminal 1)

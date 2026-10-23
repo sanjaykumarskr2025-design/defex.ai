@@ -1,8 +1,8 @@
-# PartSight AI - Industrial Part Inspection Platform
+# DefEx.ai - AI-Powered Defect Detection & Analysis Platform
 
 ## Overview
 
-PartSight AI is a full-stack web application for AI-powered industrial component inspection, defect detection, predictive maintenance, and damage prevention. The platform helps industrial operators, maintenance engineers, and quality inspection teams manage machines, track components, and detect defects through computer vision analysis.
+DefEx.ai is a full-stack web application for AI-powered industrial component inspection, defect detection, predictive maintenance, and damage prevention. The platform helps industrial operators, maintenance engineers, and quality inspection teams manage machines, track components, and detect defects through computer vision analysis.
 
 ## Project Structure
 

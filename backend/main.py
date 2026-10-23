@@ -12,8 +12,8 @@ init_db()
 
 # Create FastAPI app
 app = FastAPI(
-    title="PartSight AI API",
-    description="AI-Powered Industrial Part Inspection Platform",
+    title="DefEx.ai API",
+    description="AI-Powered Defect Detection Platform",
     version="1.0.0"
 )
 
@@ -46,7 +46,7 @@ async def health_check():
 @app.get("/")
 async def root():
     return {
-        "name": "PartSight AI",
+        "name": "DefEx.ai",
         "version": "1.0.0",
         "docs": "/docs",
         "openapi": "/openapi.json"

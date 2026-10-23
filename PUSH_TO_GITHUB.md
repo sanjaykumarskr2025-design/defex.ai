@@ -1,7 +1,7 @@
 # Push to GitHub - Complete Guide
 
 ## Current Status
-✅ Complete PartSight AI application is built and committed locally  
+✅ Complete DefEx.ai application is built and committed locally  
 ✅ All 60+ files organized and ready  
 ✅ Git repository initialized with first commit  
 ✅ Ready to push to remote
@@ -16,13 +16,13 @@
 # Mac: brew install gh
 # Linux: Follow https://github.com/cli/cli#installation
 
-cd partsight-ai
+cd defex-ai
 
 # Authenticate with GitHub
 gh auth login
 
 # Create and push to remote (automatic)
-gh repo create partvisit --source=. --remote=origin --push
+gh repo create defex-ai --source=. --remote=origin --push
 
 # Done! Repository created and code pushed
 ```
@@ -30,14 +30,14 @@ gh repo create partvisit --source=. --remote=origin --push
 ### Option 2: Using Git Commands
 
 ```bash
-cd partsight-ai
+cd defex-ai
 
 # Set your credentials
 git config user.name "Your Name"
 git config user.email "your.email@github.com"
 
 # Add remote
-git remote add origin https://github.com/sanjaykumarskr2025-design/partvisit.git
+git remote add origin https://github.com/sanjaykumarskr2025-design/defex-ai.git
 
 # Verify remote
 git remote -v
@@ -53,10 +53,10 @@ git push -u origin main
 ### Option 3: Using SSH (if configured)
 
 ```bash
-cd partsight-ai
+cd defex-ai
 
 # Add SSH remote
-git remote add origin git@github.com:sanjaykumarskr2025-design/partvisit.git
+git remote add origin git@github.com:sanjaykumarskr2025-design/defex-ai.git
 
 # Push
 git push -u origin main
@@ -65,7 +65,7 @@ git push -u origin main
 ## Repository Structure Ready for Push
 
 ```
-partsight-ai/
+defex-ai/
 ├── .git/                          # Git repository (already initialized)
 ├── .github/
 │   └── workflows/
@@ -130,7 +130,7 @@ git remote -v
 ## After Pushing to GitHub
 
 ### 1. Verify Repository on GitHub
-- Visit: https://github.com/sanjaykumarskr2025-design/partvisit
+- Visit: https://github.com/sanjaykumarskr2025-design/defex-ai
 - Verify all files appear
 - Check commit message
 
@@ -229,8 +229,8 @@ Lines of Code:
 
 ```bash
 # Clone fresh copy to test
-git clone https://github.com/sanjaykumarskr2025-design/partvisit.git
-cd partvisit
+git clone https://github.com/sanjaykumarskr2025-design/defex-ai.git
+cd defex-ai
 
 # Backend
 cd backend

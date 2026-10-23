@@ -18,7 +18,7 @@ export const Navigation = () => {
       <nav className="bg-gray-900 border-b border-gray-800">
         <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
           <Link to="/" className="text-2xl font-bold text-cyan-500">
-            PartSight AI
+            DefEx.ai
           </Link>
           <div className="space-x-4">
             <Link to="/login" className="text-gray-300 hover:text-cyan-500">
