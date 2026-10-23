@@ -8,8 +8,6 @@ import {
   Cpu,
   ArrowUpRight,
   ArrowDownRight,
-  Monitor,
-  Smartphone,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useAppState } from '../context/AppContext';
@@ -18,7 +16,7 @@ import { PartGraphic } from '../components/PartGraphic';
 export const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { machines, inspections, viewMode, setViewMode } = useAppState();
+  const { machines, inspections } = useAppState();
 
   const passedCount = inspections.filter((i) => i.status === 'PASS').length;
   const failedCount = inspections.filter((i) => i.status === 'FAIL').length;
@@ -27,42 +25,6 @@ export const DashboardPage: React.FC = () => {
 
   return (
     <div className="space-y-5 pb-20">
-      {/* Top Prominent Layout Switcher Pill */}
-      <div className="bg-white rounded-2xl p-2.5 border border-slate-200/80 shadow-xs flex items-center justify-between">
-        <div className="flex items-center gap-2 pl-1">
-          <span className="text-xs font-bold text-slate-800">Display Layout:</span>
-          <span className="text-[11px] text-slate-400 font-medium hidden sm:inline">
-            Choose between full desktop dashboard & mobile phone frame
-          </span>
-        </div>
-
-        <div className="flex items-center bg-slate-100 p-1 rounded-xl gap-1">
-          <button
-            onClick={() => setViewMode('responsive')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-              viewMode === 'responsive'
-                ? 'bg-blue-600 text-white shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <Monitor className="w-3.5 h-3.5" />
-            <span>Full</span>
-          </button>
-
-          <button
-            onClick={() => setViewMode('mobile-mockup')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-              viewMode === 'mobile-mockup'
-                ? 'bg-blue-600 text-white shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <Smartphone className="w-3.5 h-3.5" />
-            <span>Mobile Mockup</span>
-          </button>
-        </div>
-      </div>
-
       {/* Greeting Header */}
       <div className="pt-1">
         <h2 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">
