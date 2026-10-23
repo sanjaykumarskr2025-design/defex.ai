@@ -24,7 +24,11 @@ jobs:
         run: cd frontend && npm ci
 
       - name: Build application
-        run: cd frontend && npm run build
+        run: |
+          cd frontend
+          npm run build
+          touch dist/.nojekyll
+          cp dist/index.html dist/404.html
 
       - uses: actions/upload-pages-artifact@v3
         with:
